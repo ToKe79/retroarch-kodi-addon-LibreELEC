@@ -1,5 +1,5 @@
 # RetroArch KODI add-on for LibreELEC / S905.arm builds
-This script creates KODI add-on from Lakka sources for S905 devices.
+This script creates KODI add-on from Lakka sources for S905 devices. Still work-in-progress, resulting built has not been tested again. Can be used to build also for other devices (e.g. S805, RPi, etc.), just change PROJECT/ARCH to your needs.
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
