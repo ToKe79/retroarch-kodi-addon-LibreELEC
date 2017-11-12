@@ -1,5 +1,5 @@
-# RetroArch KODI addon for LibreELEC / S905.arm builds
-This script creates KODI addon from Lakka sources for S905 devices.
+# RetroArch KODI add-on for LibreELEC / S905.arm builds
+This script creates KODI add-on from Lakka sources for S905 devices.
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
@@ -35,14 +35,16 @@ Clone this repository:
 ```bash
 cd ..
 git clone https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm
-cd retroarch_kod_addon_LE_S905arm
+cd retroarch_kodi_addon_LE_S905arm
 ```
 
 Edit the script `build_retroarch.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
 
 ```bash
-LAKKA="/home/joe/Lakka-LibreELEC"
+LAKKA="/home/joe/repositories/Lakka-LibreELEC"
 ```
+
+If you cloned to `src` folder in your home, you don't have to change `LAKKA`.
 
 Check remaining variables and adjust them as required, but in most cases there is no need to change them.
 
@@ -52,11 +54,11 @@ Run the build script:
 ./build_retroarch.sh
 ```
 
-First time the building/compiling process will take some time, when it is finished, you will have a file called `emulator.tools.retroarch` in your folder. You can install this addon in LibreELEC (copy it to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make addon scripts and binaries executable.
+First time the building/compiling process will take some time, when it is finished, you will have a file called `emulator.tools.retroarch.zip` in your folder. You can install this add-on in LibreELEC (copy it to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
 
-You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.tv/doc/BIOSes/)) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch.
+You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.tv/doc/BIOSes/)) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch. *Never ask for BIOS files in IRC channels or formus of LibreELEC or Lakka!*
 
-##Folders:
+## Folders:
 
 `/storage/.config/retroarch` is the root folder for RetroArch configurations. It includes the `retroarch.cfg` main configuration file and following subfolders:
 
@@ -76,7 +78,7 @@ Put your ROM files to folder `/storage/roms`. You may put them in separate folde
 
 Screenshots are stored in `/storage/screenshots`.
 
-The addon includes also following subfolders in the `resources` folder:
+The add-on includes also following subfolders in the `resources` folder, so you don't have to download these:
 
 `assets` Contains wallpapers, themes, icons, fonts, etc.
 
