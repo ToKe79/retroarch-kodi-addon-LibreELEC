@@ -18,6 +18,7 @@ cd Lakka-LibreELEC`
 Edit `config/path` file - uncomment like this:
 
 `# Uncomment this line to ignore version when building`
+
 `BUILD=$ROOT/$BUILD_BASE.$DISTRONAME-${DEVICE:-$PROJECT}.$TARGET_ARCH`
 
 This will make sure, that when the version changes, the build subfolder, which will be created by the first compilation, will be re-used.
@@ -25,7 +26,9 @@ This will make sure, that when the version changes, the build subfolder, which w
 Clone this repository:
 
 `cd ..`
+
 `git clone https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm`
+
 `cd retroarch_kod_addon_LE_S905arm`
 
 Edit the script `build_retroarch.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
