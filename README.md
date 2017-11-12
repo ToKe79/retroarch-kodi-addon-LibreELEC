@@ -25,7 +25,9 @@ This will make sure, that when the version changes, the build subfolder, which w
 Clone this repository:
 
 `cd ..
+
 git clone https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm
+
 cd retroarch_kod_addon_LE_S905arm`
 
 Edit the script `build_retroarch.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
@@ -40,7 +42,7 @@ Run the build script:
 
 First time the building/compiling process will take some time, when it is finished, you will have a file called `emulator.tools.retroarch` in your folder. You can install this addon in LibreELEC (copy it to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make addon scripts and binaries executable.
 
-You have to put BIOS files (see [Lakka documentation - BIOSes][http://www.lakka.tv/doc/BIOSes/]) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch.
+You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.tv/doc/BIOSes/)) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch.
 
 ##Folders:
 
@@ -81,7 +83,7 @@ The addon includes also following subfolders in the `resources` folder:
 The emulation cores are stored in `lib/libretro` subfolder of the add-on.
 
 # Credits
-Thanks to [Lakka][http://lakka.tv] for their work.
+Thanks to [Lakka](http://lakka.tv) for their work.
 
-Also thanks to [JoKeRzBoX][https://github.com/JoKeRzBoX] - I based my work on his [work][https://github.com/JoKeRzBoX/JoKeRzBoX_LibreELEC_Repo_S805].
+Also thanks to [JoKeRzBoX](https://github.com/JoKeRzBoX) - I based my work on his [work](https://github.com/JoKeRzBoX/JoKeRzBoX_LibreELEC_Repo_S805).
 
