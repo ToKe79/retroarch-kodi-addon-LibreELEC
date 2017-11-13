@@ -9,7 +9,7 @@ to:
 ```
 systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output.txt
 ```
-or modify the file `/storage/.kodi/addons/emulator.tools.retroarch/bin/retroarch.start` on the LibreELEC device.
+or modify the file `/storage/.kodi/addons/emulator.tools.retroarch/bin/retroarch.start` on the LibreELEC device.*
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
