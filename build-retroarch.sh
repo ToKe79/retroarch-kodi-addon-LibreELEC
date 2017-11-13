@@ -1,20 +1,38 @@
 #!/bin/bash
-LAKKA="$HOME/src/Lakka-LibreELEC"
+LAKKA="/home/vudiq/src/Lakka-LibreELEC"
 BUILD_SUBDIR="build.Lakka-S905.arm"
-PKG_SUBDIR="packages/libretro"
-PACKAGES="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-supergrafx beetle-vb beetle-wswan bluemsx cap32 chailove crocods desmume dinothawr dosbox easyrpg fbalpha fceumm fuse-libretro gambatte genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
+PACKAGES_SUBDIR="packages"
+
+PKG_TYPES="MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS LIBRETRO"
+
+PKG_SUBDIR_MULTIMEDIA="multimedia"
+PKG_SUBDIR_TOOLS="tools"
+PKG_SUBDIR_NETWORK="network"
+PKG_SUBDIR_WAYLAND="wayland"
+PKG_SUBDIR_SYSUTILS="sysutils"
+PKG_SUBDIR_LIBRETRO="libretro"
+
+PACKAGES_MULTIMEDIA="libvdpau"
+PACKAGES_TOOLS="joyutils"
+PACKAGES_NETWORK="sixpair"
+PACKAGES_WAYLAND="libxkbcommon"
+PACKAGES_SYSUTILS="empty"
+PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-supergrafx beetle-vb beetle-wswan bluemsx cap32 chailove crocods desmume dinothawr dosbox easyrpg fbalpha fceumm fuse-libretro gambatte genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
+
+PACKAGES_ALL=""
+
+for suffix in $PKG_TYPES ; do
+	varname="PACKAGES_$suffix"
+	PACKAGES_ALL="$PACKAGES_ALL ${!varname}"
+done
+
 VERSION=$(date +%Y%m%d)
 SCRIPT_DIR=$(pwd)
-PROJECT_DIR="$SCRIPT_DIR/retroarch_S905"
+PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
 ADDON_NAME="emulator.tools.retroarch"
 ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
-if [ -d "$PROJECT_DIR" ] ; then
-	echo _n "Removing previous working folder..."
-	rm -rf "$PROJECT_DIR" &>/dev/null
-	[ $? -eq 0 ] && echo "done." || { echo "failed." ; exit 1 ; }
-fi
 if [ -f "$ADDON_NAME.zip" ] ; then
 	echo -n "Removing previous addon..."
 	rm -f "$ADDON_NAME.zip"
@@ -24,7 +42,7 @@ if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
 	git checkout $GIT_BRANCH &>/dev/null
 	echo "Building packages:"
-	for package in $PACKAGES ; do
+	for package in $PACKAGES_ALL ; do
 		echo -ne "\t$package "
 		DISTRO=Lakka PROJECT=S905 ARCH=arm ./scripts/build $package &>/dev/null
 		if [ $? -eq 0 ] ; then
@@ -49,23 +67,28 @@ if [ -d "$LAKKA" ] ; then
 	fi
 	echo
 	echo "Copying packages:"
-	for package in $PACKAGES ; do
-		echo -ne "\t$package "
-		SRC="$PKG_SUBDIR/$package/package.mk"
-		if [ -f "$SRC" ] ; then
-			PKG_VERSION=`cat $SRC | sed -En "s/PKG_VERSION=\"(.*)\"/\1/p"`
-		else
-			echo "(skipped - no package.mk)"
-			continue
-		fi
-		PKG_FOLDER="$BUILD_SUBDIR/$package-$PKG_VERSION/.install_pkg"
-		if [ -d "$PKG_FOLDER" ] ; then
-			cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>/dev/null
-			[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
-		else
-			echo "(skipped - not found)"
-			continue
-		fi
+	for suffix in $PKG_TYPES ; do
+		varname="PKG_SUBDIR_$suffix"
+		path="$PACKAGES_SUBDIR/${!varname}"
+		varname="PACKAGES_$suffix"
+		for package in ${!varname} ; do
+			echo -ne "\t$package "
+			SRC="$path/$package/package.mk"
+			if [ -f "$SRC" ] ; then
+				PKG_VERSION=`cat $SRC | sed -En "s/PKG_VERSION=\"(.*)\"/\1/p"`
+			else
+				echo "(skipped - no package.mk)"
+				continue
+			fi
+			PKG_FOLDER="$BUILD_SUBDIR/$package-$PKG_VERSION/.install_pkg"
+			if [ -d "$PKG_FOLDER" ] ; then
+				cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>/dev/null
+				[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+			else
+				echo "(skipped - not found)"
+				continue
+			fi
+		done
 	done
 	echo
 else
@@ -84,7 +107,7 @@ mkdir -p "$ADDON_DIR" &>/dev/null
 echo
 cd "$ADDON_DIR"
 echo "Creating folder structure..."
-for f in bin lib config resources ; do
+for f in config resources ; do
 	echo -ne "\t$f "
 	mkdir $f &>/dev/null
 	[ $? -eq 0 ] && echo -e "(ok)" || { echo -e "(failed)" ; exit 1 ; }
@@ -97,11 +120,11 @@ mv "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>/dev/null
 echo -ne "\tjoypads "
 mv "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>/dev/null
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
-echo -ne "\tretroarch "
-mv "$TARGET_DIR/usr/bin/retroarch" "$ADDON_DIR/bin/" &>/dev/null
+echo -ne "\tbinaries "
+mv "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>/dev/null
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
-echo -ne "\tcores "
-mv "$TARGET_DIR/usr/lib/libretro" "$ADDON_DIR/lib/" &>/dev/null
+echo -ne "\tlibraries and cores "
+mv "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>/dev/null
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taudio filters "
 mv "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>/dev/null
@@ -135,6 +158,7 @@ systemd-run \$ADDON_DIR/bin/retroarch.start
 EOF
 echo "$content" > bin/retroarch.sh
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+chmod +x bin/retroarch.sh
 echo -ne "\tretroarch.start "
 read -d '' content <<EOF
 #!/bin/sh
@@ -143,12 +167,15 @@ read -d '' content <<EOF
 
 oe_setup_addon emulator.tools.retroarch
 
+PATH="\$ADDON_DIR/bin:\$PATH"
 RA_CONFIG_DIR="/storage/.config/retroarch/"
 RA_CONFIG_FILE="\$RA_CONFIG_DIR/retroarch.cfg"
 RA_CONFIG_SUBDIRS="savestates savefiles remappings playlists system thumbnails"
 RA_EXE="\$ADDON_DIR/bin/retroarch"
 ROMS_FOLDER="/storage/roms"
 DOWNLOADS="downloads"
+
+chmod +x bin/*
 
 [ ! -d "\$RA_CONFIG_DIR" ] && mkdir -p "\$RA_CONFIG_DIR"
 [ ! -d "\$ROMS_FOLDER" ] && mkdir -p "\$ROMS_FOLDER"
@@ -157,8 +184,6 @@ DOWNLOADS="downloads"
 for f in \$RA_CONFIG_SUBDIRS ; do
 	[ ! -d "\$RA_CONFIG_DIR/\$f" ] && mkdir -p "\$RA_CONFIG_DIR/\$f"
 done
-
-chmod a+x \$ADDON_DIR/bin/*
 
 if [ ! -f "\$RA_CONFIG_FILE" ]; then
 	if [ -f "\$ADDON_DIR/config/retroarch.cfg" ]; then
@@ -180,6 +205,7 @@ exit 0
 EOF
 echo "$content" > bin/retroarch.start
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+chmod +x bin/retroarch.start
 echo -ne "\taddon.xml "
 read -d '' content <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
