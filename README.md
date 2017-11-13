@@ -1,15 +1,15 @@
 # RetroArch KODI add-on for LibreELEC / S905.arm builds
 This script creates KODI add-on from Lakka sources for S905 devices. Still work-in-progress, resulting build has not been tested yet. Can be used to build also for other devices (e.g. S805, RPi, etc.), just change PROJECT/ARCH to your needs.
 
-*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm/issues/new) with the name of the missing library. To get the output from the start, just change this line in the build script:
+*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm/issues/new) with the name of the missing library. To get the output from the start, just change this line in the build script:*
 ```
 systemd-run \$ADDON_DIR/bin/retroarch.start
 ```
-to:
+*to:*
 ```
 systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output.txt
 ```
-or modify the file `/storage/.kodi/addons/emulator.tools.retroarch/bin/retroarch.start` on the LibreELEC device.*
+*or modify the file `/storage/.kodi/addons/emulator.tools.retroarch/bin/retroarch.start` on the LibreELEC device.*
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
