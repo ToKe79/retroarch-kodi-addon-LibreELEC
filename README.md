@@ -1,6 +1,15 @@
 # RetroArch KODI add-on for LibreELEC / S905.arm builds
 This script creates KODI add-on from Lakka sources for S905 devices. Still work-in-progress, resulting build has not been tested yet. Can be used to build also for other devices (e.g. S805, RPi, etc.), just change PROJECT/ARCH to your needs.
 
+*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm/issues/new) with the name of the missing library. To get the output from the start, just change this line in the build script:*
+```
+systemd-run \$ADDON_DIR/bin/retroarch.start
+```
+to:
+```
+systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output.txt
+```
+
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
 
@@ -54,7 +63,7 @@ Run the build script:
 ./build_retroarch.sh
 ```
 
-First time the building/compiling process will take some time, when it is finished, you will have a file called `emulator.tools.retroarch.zip` in your folder. You can install this add-on in LibreELEC (copy it to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
+First time the building/compiling process will take some time, when it is finished, you will have a file called `emulator.tools.retroarch.zip` in your folder. You can install this add-on in [KODI](http://kodi.wiki/view/HOW-TO:Install_add-ons_from_zip_files) (copy it to your LibreELEC device via scp). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
 
 You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.tv/doc/BIOSes/)) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch. *Never ask for BIOS files in IRC channels or formus of LibreELEC or Lakka!*
 
@@ -62,15 +71,15 @@ You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.
 
 `/storage/.config/retroarch` is the root folder for RetroArch configurations. It includes the `retroarch.cfg` main configuration file and following subfolders:
 
-`savestates` For storing the savestates
+`savestates` for storing the savestates
 
-`savefiles` For storing the saves (e.g. memory card files)
+`savefiles` for storing the saves (e.g. memory card files)
 
-`remappings` For storing remapped controls
+`remappings` for storing remapped controls
 
-`playlists` For storing RetroArch playlists - lists of games per emulated system
+`playlists` for storing RetroArch playlists - lists of games per emulated system
 
-`system` Put your BIOS files here
+`system` put your BIOS files here
 
 `thumbnails` Boxarts / Screenshots / Title screens will be stored here (use the online update in RetroArch to download these)
 
@@ -80,19 +89,19 @@ Screenshots are stored in `/storage/screenshots`.
 
 The add-on includes also following subfolders in the `resources` folder, so you don't have to download these:
 
-`assets` Contains wallpapers, themes, icons, fonts, etc.
+`assets` contains wallpapers, themes, icons, fonts, etc.
 
-`audio_filters` Various audio filters
+`audio_filters` various audio filters
 
-`database` Contains subfolders `cht` (cheats), `cursors` (saved searches) and `rdb` (games databases for scanning your files)
+`database` contains subfolders `cht` (cheats), `cursors` (saved searches) and `rdb` (games databases for scanning your files)
 
-`joypads` Configuration files for autoconfiguration of attached joystics and gamepads
+`joypads` configuration files for autoconfiguration of attached joystics and gamepads
 
-`overlays` For touch-devices only - on screen gamepad overlays
+`overlays` for touch-devices only - on screen gamepad overlays
 
-`shaders` Various shaders to enhance the visuals of the emulated systems on current display devices
+`shaders` various shaders to enhance the visuals of the emulated systems on current display devices
 
-`video_filters` Various video filters
+`video_filters` various video filters
 
 The emulation cores are stored in `lib/libretro` subfolder of the add-on.
 
