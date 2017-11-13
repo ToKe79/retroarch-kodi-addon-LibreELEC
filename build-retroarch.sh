@@ -168,6 +168,7 @@ read -d '' content <<EOF
 oe_setup_addon emulator.tools.retroarch
 
 PATH="\$ADDON_DIR/bin:\$PATH"
+LD_LIBRARY_PATH="$ADDON_DIR/lib:\$LD_LIBRARY_PATH"
 RA_CONFIG_DIR="/storage/.config/retroarch/"
 RA_CONFIG_FILE="\$RA_CONFIG_DIR/retroarch.cfg"
 RA_CONFIG_SUBDIRS="savestates savefiles remappings playlists system thumbnails"
