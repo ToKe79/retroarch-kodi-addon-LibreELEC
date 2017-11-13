@@ -1,5 +1,5 @@
 #!/bin/bash
-LAKKA="/home/vudiq/src/Lakka-LibreELEC"
+LAKKA="$HOME/src/Lakka-LibreELEC"
 BUILD_SUBDIR="build.Lakka-S905.arm"
 PACKAGES_SUBDIR="packages"
 
