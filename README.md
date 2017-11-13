@@ -11,6 +11,9 @@ systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output
 ```
 *or modify the file `/storage/.kodi/addons/emulator.tools.retroarch/bin/retroarch.start` on the LibreELEC device.*
 
+Builds for testing can be found [here](https://vps.vudiq.sk/kodi-retroarch). Currently available builds:
+- S905.arm
+
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
 
