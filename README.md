@@ -106,7 +106,7 @@ The add-on includes also following subfolders in the `resources` folder, so you 
 The emulation cores are stored in `lib/libretro` subfolder of the add-on.
 
 # Future
-My dream is to create and host own KODI repository to host builds of the RetroArch addon for various LibreELEC devices.
+My dream is to create and host own KODI add-on repository to provide the RetroArch add-on for various LibreELEC devices.
 
 # Credits
 Thanks to [Lakka](http://lakka.tv) for their work.
