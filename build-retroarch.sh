@@ -5949,7 +5949,7 @@ cd ..
 zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$ADDON_NAME" &>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
-echo -n "Cleaning up..."
+echo "Cleaning up..."
 cd "$SCRIPT_DIR"
 echo -ne "\tproject folder "
 rm -rf "$PROJECT_DIR"
