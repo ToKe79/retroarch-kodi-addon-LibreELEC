@@ -11,7 +11,7 @@ BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
 
-PKG_TYPES="MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS LIBRETRO"
+PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
 
 PKG_SUBDIR_MULTIMEDIA="multimedia"
 PKG_SUBDIR_TOOLS="tools"
@@ -53,6 +53,8 @@ ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
 
 ARCHIVE_NAME="$ADDON_NAME.zip"
 
+LOG="$SCRIPT_DIR/retroarch-kodi_`date +%Y%m%d_%H%M%S`.log"
+
 read -d '' message <<EOF
 Building RetroArch KODI add-on for LibreELEC:
 DISTRO=$DISTRO
@@ -60,6 +62,9 @@ PROJECT=$PROJECT
 DEVICE=$DEVICE
 SYSTEM=$SYSTEM
 ARCH=$ARCH
+
+Working in: $SCRIPT_DIR
+Temporary project folder: $TARGET_DIR
 
 Target: $ARCHIVE_NAME
 EOF
@@ -75,16 +80,16 @@ if [ -f "$ARCHIVE_NAME" ] ; then
 fi
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
-	git checkout $GIT_BRANCH &>/dev/null
+	git checkout $GIT_BRANCH &>"$LOG"
 	echo "Building packages:"
 	for package in $PACKAGES_ALL ; do
 		echo -ne "\t$package "
 		if [ -n "$SYSTEM" ] ; then
-			DISTRO=$DISTRO PROJECT=$PROJECT SYSTEM=$SYSTEM ARCH=$ARCH ./$SCRIPT $package &>/dev/null
+			DISTRO=$DISTRO PROJECT=$PROJECT SYSTEM=$SYSTEM ARCH=$ARCH ./$SCRIPT $package &>"$LOG"
 		elif [ -n "$DEVICE" ] ; then
-			DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>/dev/null
+			DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>"$LOG"
 		else
-			DISTRO=$DISTRO PROJECT=$PROJECT ARCH=$ARCH ./$SCRIPT $package &>/dev/null
+			DISTRO=$DISTRO PROJECT=$PROJECT ARCH=$ARCH ./$SCRIPT $package &>"$LOG"
 		fi
 		if [ $? -eq 0 ] ; then
 			echo "(ok)"
@@ -97,7 +102,7 @@ if [ -d "$LAKKA" ] ; then
 	echo
 	if [ ! -d "$TARGET_DIR" ] ; then
 		echo -n "Creating target folder '$TARGET_DIR'..."
-		mkdir -p "$TARGET_DIR" &>/dev/null
+		mkdir -p "$TARGET_DIR" &>"$LOG"
 		if [ $? -eq 0 ] ; then
 			echo "done."
 		else
@@ -123,7 +128,7 @@ if [ -d "$LAKKA" ] ; then
 			fi
 			PKG_FOLDER="$BUILD_SUBDIR/$package-$PKG_VERSION/.install_pkg"
 			if [ -d "$PKG_FOLDER" ] ; then
-				cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>/dev/null
+				cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>"$LOG"
 				[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 			else
 				echo "(skipped - not found)"
@@ -138,52 +143,52 @@ else
 fi
 if [ -d "$ADDON_DIR" ] ; then
 	echo -n "Removing previous addon..."
-	rm -rf "$ADDON_DIR" &>/dev/null
+	rm -rf "$ADDON_DIR" &>"$LOG"
 	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error removing folder '$ADDON_DIR'!" ; exit 1 ; }
 	echo
 fi
 echo -n "Creating addon folder..."
-mkdir -p "$ADDON_DIR" &>/dev/null
+mkdir -p "$ADDON_DIR" &>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error creating folder '$ADDON_DIR'!" ; exit 1 ; }
 echo
 cd "$ADDON_DIR"
 echo "Creating folder structure..."
 for f in config resources ; do
 	echo -ne "\t$f "
-	mkdir $f &>/dev/null
+	mkdir $f &>"$LOG"
 	[ $? -eq 0 ] && echo -e "(ok)" || { echo -e "(failed)" ; exit 1 ; }
 done
 echo
 echo "Moving files to addon..."
 echo -ne "\tretroarch.cfg "
-mv "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>/dev/null
+mv "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tjoypads "
-mv "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>/dev/null
+mv "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tbinaries "
-mv "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>/dev/null
+mv "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tlibraries and cores "
-mv "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>/dev/null
+mv "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taudio filters "
-mv "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>/dev/null
+mv "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tvideo filters "
-mv "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>/dev/null
+mv "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tshaders "
-mv "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>/dev/null
+mv "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tdatabases "
-mv "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>/dev/null
+mv "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tassets "
-mv "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>/dev/null
+mv "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\toverlays "
-mv "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>/dev/null
+mv "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Creating files..."
@@ -5941,12 +5946,16 @@ sed -i "s/\/tmp\/database/$RA_RES_DIR\/database/g" $CFG
 echo
 echo -n "Creating archive..."
 cd ..
-zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$ADDON_NAME" &>/dev/null
+zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$ADDON_NAME" &>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
 echo -n "Cleaning up..."
 cd "$SCRIPT_DIR"
+echo -ne "\tproject folder "
 rm -rf "$PROJECT_DIR"
-[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+echo -ne "\tlog file "
+rm -rf "$LOG"
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Finished."
