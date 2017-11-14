@@ -13,6 +13,10 @@ systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output
 
 Builds for testing can be found [here](https://vps.vudiq.sk/kodi-retroarch). Currently available builds:
 - S905.arm
+- Generic.x86\_64
+- Generic.i386
+- RPi.arm
+- RPi2.arm
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
