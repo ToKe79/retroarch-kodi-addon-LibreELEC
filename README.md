@@ -122,5 +122,5 @@ My dream is to create and host own KODI add-on repository to provide the RetroAr
 # Credits
 Thanks to [Lakka](http://lakka.tv) for their work.
 
-Also thanks to [JoKeRzBoX](https://github.com/JoKeRzBoX) - I based my work on his [work](https://github.com/JoKeRzBoX/JoKeRzBoX_LibreELEC_Repo_S805).
+Also thanks to [JoKeRzBoX](https://github.com/JoKeRzBoX) - I based my work on his [work](https://github.com/JoKeRzBoX/JoKeRzBoX_LibreELEC_Repo_S905).
 
