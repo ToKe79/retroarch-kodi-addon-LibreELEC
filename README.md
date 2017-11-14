@@ -47,8 +47,8 @@ Clone this repository:
 
 ```bash
 cd ..
-git clone https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm
-cd retroarch_kodi_addon_LE_S905arm
+git clone https://github.com/ToKe79/retroarch-kodi-addon-LibreELEC
+cd retroarch-kodi-addon-LibreELEC
 ```
 
 Edit the script `build_retroarch.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
