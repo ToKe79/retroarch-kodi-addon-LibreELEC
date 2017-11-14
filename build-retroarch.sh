@@ -6,7 +6,7 @@
 [ -z "$DEVICE" ] && DEVICE=
 [ -z "$SYSTEM" ] && SYSTEM=
 
-LAKKA="$HOME/src/Lakka-LibreELEC"
+LAKKA="$HOME/src/Lakka"
 BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
@@ -25,7 +25,7 @@ PACKAGES_TOOLS="joyutils"
 PACKAGES_NETWORK="sixpair"
 PACKAGES_WAYLAND="libxkbcommon"
 PACKAGES_SYSUTILS="empty"
-PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-supergrafx beetle-vb beetle-wswan bluemsx cap32 chailove crocods desmume dinothawr dosbox easyrpg fbalpha fceumm fuse-libretro gambatte genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
+PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-supergrafx beetle-vb beetle-wswan bluemsx cap32 chailove citra crocods desmume dinothawr dosbox easyrpg fbalpha fceumm fuse-libretro gambatte genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
 
 PACKAGES_ALL=""
 
@@ -33,6 +33,17 @@ for suffix in $PKG_TYPES ; do
 	varname="PACKAGES_$suffix"
 	PACKAGES_ALL="$PACKAGES_ALL ${!varname}"
 done
+
+DISABLED_CORES_RPi="ppsspp uae4arm reicast"
+
+varname="DISABLED_CORES_$PROJECT"
+DISABLED_CORES="${!varname}"
+if [ -n "$DISABLED_CORES" ] ; then
+	for core in $DISABLED_CORES ; do
+		PACKAGES_LIBRETRO=$(sed "s/$core//g" <<< $PACKAGES_LIBRETRO)
+		PACKAGES_ALL=$(sed "s/$core//g" <<< $PACKAGES_ALL)
+	done
+fi
 
 VERSION=$(date +%Y%m%d)
 SCRIPT_DIR=$(pwd)
@@ -44,7 +55,7 @@ BASE_NAME="emulator.tools.retroarch-LibreELEC"
 if [ -n "$SYSTEM" ]; then
 	ADDON_NAME="$BASE_NAME-$PROJECT.$SYSTEM.$ARCH"
 elif [ -n "$DEVICE" ]; then
-	ADDON_NAME="$BASE_NAME-$PROJECT.$DEVICE.$ARCH"
+	ADDON_NAME="$BASE_NAME-$DEVICE.$ARCH"
 else
 	ADDON_NAME="$BASE_NAME-$PROJECT.$ARCH"
 fi
