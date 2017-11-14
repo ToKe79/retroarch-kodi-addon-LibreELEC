@@ -1,7 +1,7 @@
-# RetroArch KODI add-on for LibreELEC / S905.arm builds
-This script creates KODI add-on from Lakka sources for S905 devices. Still work-in-progress, resulting build has not been tested yet. Can be used to build also for other devices (e.g. S805, RPi, etc.), just change PROJECT/ARCH to your needs.
+# RetroArch KODI add-on for LibreELEC
+This script creates KODI add-on from Lakka sources for LibreELEC devices. Still work-in-progress, resulting builds have not been tested yet. Default build is for S905 ARM devices.
 
-*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch_kodi_addon_LE_S905arm/issues/new) with the name of the missing library. To get the output from the start, just change this line in the build script:*
+*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch-kodi-addon-LibreELEC/issues/new) with the name of the missing library. To get the output from the start, just change this line in the build script:*
 ```
 systemd-run \$ADDON_DIR/bin/retroarch.start
 ```
@@ -52,22 +52,25 @@ cd retroarch_kodi_addon_LE_S905arm
 ```
 
 Edit the script `build_retroarch.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
-
 ```bash
 LAKKA="/home/joe/repositories/Lakka-LibreELEC"
 ```
-
 If you cloned to `src` folder in your home, you don't have to change `LAKKA`.
 
 Check remaining variables and adjust them as required, but in most cases there is no need to change them.
 
 Run the build script:
-
 ```bash
 ./build_retroarch.sh
 ```
 
-First time the building/compiling process will take some time, when it is finished, you will have a file called `emulator.tools.retroarch.zip` in your folder. You can install this add-on in [KODI](http://kodi.wiki/view/HOW-TO:Install_add-ons_from_zip_files) (copy it to your LibreELEC device via scp). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
+Examples for other devices (the project/device/system/architecture must be the same, as you use on the LibreELEC device):
+```bash
+PROJECT=Generic ARCH=x86_64 ./build_retroarch.sh     # build for generic 64-bit PC
+PROJECT=RPi ARCH=arm ./build_retroarch.sh            # build for Raspberry Pi
+PROJECT=S805 SYSTEM=MXQ ARCH=arm ./build_retroarch   # build for MXQ (S805 SoC)
+```
+First time the building/compiling process will take some time (the first package will look like it is compiling really long, but in the background the whole toolchain is being compiled), when it is finished, you will have a file called `emulator.tools.retroarch-LibreELEC-S905.arm.zip` (S905.arm will be replaced by the target device/architecture) in your folder. You can install this add-on in [KODI](http://kodi.wiki/view/HOW-TO:Install_add-ons_from_zip_files) (copy it to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
 
 You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.tv/doc/BIOSes/)) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch. *Never ask for BIOS files in IRC channels or formus of LibreELEC or Lakka!*
 
