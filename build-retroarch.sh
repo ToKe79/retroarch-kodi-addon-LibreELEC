@@ -1,6 +1,14 @@
 #!/bin/bash
+
+[ -z "$DISTRO" ] && DISTRO=Lakka
+[ -z "$PROJECT" ] && PROJECT=S905
+[ -z "$ARCH" ] && ARCH=arm
+[ -z "$DEVICE" ] && DEVICE=
+[ -z "$SYSTEM" ] && SYSTEM=
+
 LAKKA="$HOME/src/Lakka-LibreELEC"
-BUILD_SUBDIR="build.Lakka-S905.arm"
+BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
+SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
 
 PKG_TYPES="MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS LIBRETRO"
@@ -31,12 +39,39 @@ SCRIPT_DIR=$(pwd)
 PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
-ADDON_NAME="emulator.tools.retroarch"
+BASE_NAME="emulator.tools.retroarch-LibreELEC"
+
+if [ -n "$SYSTEM" ]; then
+	ADDON_NAME="$BASE_NAME-$PROJECT.$SYSTEM.$ARCH"
+elif [ -n "$DEVICE" ]; then
+	ADDON_NAME="$BASE_NAME-$PROJECT.$DEVICE.$ARCH"
+else
+	ADDON_NAME="$BASE_NAME-$PROJECT.$ARCH"
+fi
+
 ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
-if [ -f "$ADDON_NAME.zip" ] ; then
+
+ARCHIVE_NAME="$ADDON_NAME.zip"
+
+read -d '' message <<EOF
+Building RetroArch KODI add-on for LibreELEC:
+DISTRO=$DISTRO
+PROJECT=$PROJECT
+DEVICE=$DEVICE
+SYSTEM=$SYSTEM
+ARCH=$ARCH
+
+Target: $ARCHIVE_NAME
+EOF
+
+echo "$message"
+echo
+
+if [ -f "$ARCHIVE_NAME" ] ; then
 	echo -n "Removing previous addon..."
-	rm -f "$ADDON_NAME.zip"
+	rm -f "$ARCHIVE_NAME"
 	[ $? -eq 0 ] && echo "done." || { echo "failed." ; exit 1 ; }
+	echo
 fi
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
@@ -44,7 +79,13 @@ if [ -d "$LAKKA" ] ; then
 	echo "Building packages:"
 	for package in $PACKAGES_ALL ; do
 		echo -ne "\t$package "
-		DISTRO=Lakka PROJECT=S905 ARCH=arm ./scripts/build $package &>/dev/null
+		if [ -n "$SYSTEM" ] ; then
+			DISTRO=$DISTRO PROJECT=$PROJECT SYSTEM=$SYSTEM ARCH=$ARCH ./$SCRIPT $package &>/dev/null
+		elif [ -n "$DEVICE" ] ; then
+			DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>/dev/null
+		else
+			DISTRO=$DISTRO PROJECT=$PROJECT ARCH=$ARCH ./$SCRIPT $package &>/dev/null
+		fi
 		if [ $? -eq 0 ] ; then
 			echo "(ok)"
 		else
@@ -5900,7 +5941,7 @@ sed -i "s/\/tmp\/database/$RA_RES_DIR\/database/g" $CFG
 echo
 echo -n "Creating archive..."
 cd ..
-zip -r "$SCRIPT_DIR/$ADDON_NAME.zip" "$ADDON_NAME" &>/dev/null
+zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$ADDON_NAME" &>/dev/null
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
 echo -n "Cleaning up..."
