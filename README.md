@@ -11,7 +11,7 @@ systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output
 ```
 *or modify the file e.g. `/storage/.kodi/addons/vudiq.retroarch.generic_x86_64/bin/retroarch.sh` on the LibreELEC device.*
 
-Builds for testing / testing repository can be found [here](https://vps.vudiq.sk/retroarch-kodi/). Currently available builds:
+Builds for testing / testing repository can be found [here](https://vps.vudiq.sk/repository_kodi/). Currently available builds:
 - Generic PC / 64-bit
 - Generic PC / 32-bit
 - RPi
