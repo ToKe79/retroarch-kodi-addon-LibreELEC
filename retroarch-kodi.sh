@@ -15,7 +15,7 @@ PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
 BASE_NAME="vudiq.retroarch"
-REPO_DIR="$SCRIPT_DIR/repo"
+REPO_DIR="/var/www/vps.vudiq.sk/repository_kodi"
 ZIPS_DIR="zips"
 
 PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
@@ -68,13 +68,9 @@ ARCHIVE_NAME="$ADDON_NAME-$VERSION.zip"
 
 LOG="$SCRIPT_DIR/retroarch-kodi_`date +%Y%m%d_%H%M%S`.log"
 
-# Checks folders
-for folder in $REPO_DIR $REPO_DIR/$ZIPS_DIR $REPO_DIR/$ZIPS_DIR/$ADDON_NAME ; do
-	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
-done
-
 read -d '' message <<EOF
 Building RetroArch KODI add-on for LibreELEC:
+
 DISTRO=$DISTRO
 PROJECT=$PROJECT
 DEVICE=$DEVICE
@@ -83,18 +79,19 @@ ARCH=$ARCH
 Working in: $SCRIPT_DIR
 Temporary project folder: $TARGET_DIR
 
-Target: $ARCHIVE_NAME
+Target zip: $REPO_DIR/$ZIPS_DIR/$ARCHIVE_NAME
+Target folder: $REPO_DIR/$ADDON_NAME
 EOF
 
 echo "$message"
 echo
 
-if [ -f "$ARCHIVE_NAME" ] ; then
-	echo -n "Removing previous addon..."
-	rm -f "$ARCHIVE_NAME"
-	[ $? -eq 0 ] && echo "done." || { echo "failed." ; exit 1 ; }
-	echo
-fi
+# Checks folders
+for folder in $REPO_DIR $REPO_DIR/$ZIPS_DIR $REPO_DIR/$ZIPS_DIR/$ADDON_NAME ; do
+	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
+done
+
+
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
 	git checkout $GIT_BRANCH &>>"$LOG"
@@ -5968,10 +5965,12 @@ cd ..
 zip -y -r "$ARCHIVE_NAME" "$ADDON_NAME" &>>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
-echo -n "Removing old repository..."
-rm -rf "$REPO_DIR/$ADDON_NAME" &>>"$LOG"
-[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
-echo
+if [ -d "$REPO_DIR/$ADDON_NAME" ] ; then
+	echo -n "Removing old repository folder..."
+	rm -rf "$REPO_DIR/$ADDON_NAME" &>>"$LOG"
+	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+	echo
+fi
 echo "Moving to repository..."
 echo -ne "\tzip "
 mv "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/" &>>"$LOG"
