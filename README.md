@@ -64,7 +64,7 @@ git clone https://github.com/ToKe79/retroarch-kodi-addon-LibreELEC
 cd retroarch-kodi-addon-LibreELEC
 ```
 
-Edit the script `build_retroarch.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
+Edit the script `retroarch-kodi.sh` and change `LAKKA` to folder, where the Lakka repository was cloned, e.g. to:
 ```bash
 LAKKA="/home/joe/repositories/Lakka-LibreELEC"
 ```
@@ -74,14 +74,14 @@ Check remaining variables and adjust them as required, but in most cases there i
 
 Run the build script:
 ```bash
-./build_retroarch.sh
+./retroarch-kodi.sh
 ```
 
 Examples for other devices (the project/device/system/architecture must be the same, as you use on the LibreELEC device):
 ```bash
-PROJECT=Generic ARCH=x86_64 ./build_retroarch.sh     # build for generic 64-bit PC
-PROJECT=RPi ARCH=arm ./build_retroarch.sh            # build for Raspberry Pi
-PROJECT=S805 ARCH=arm ./build_retroarch              # build for devices with S805 SoC
+PROJECT=Generic ARCH=x86_64 ./retroarch-kodi.sh     # build for generic 64-bit PC
+PROJECT=RPi ARCH=arm ./retroarch-kodi.sh            # build for Raspberry Pi
+PROJECT=S805 ARCH=arm ./retroarch-kodi.sh           # build for devices with S805 SoC
 ```
 First time the building/compiling process will take some time (the first package will look like it is compiling really long, but in the background the whole toolchain is being compiled), when it is finished, you will have the result stored in the folder defined in `REPO_DIR`. You can install this add-on in [KODI](http://kodi.wiki/view/HOW-TO:Install_add-ons_from_zip_files) (copy the ZIP file to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
 
