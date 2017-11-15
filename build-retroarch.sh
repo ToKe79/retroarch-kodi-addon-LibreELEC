@@ -50,17 +50,18 @@ SCRIPT_DIR=$(pwd)
 PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
-BASE_NAME="emulator.tools.retroarch-LibreELEC"
+BASE_NAME="emulator.tools.retroarch"
+OS_NAME="LibreELEC"
 
 if [ -n "$SYSTEM" ]; then
-	ADDON_NAME="$BASE_NAME-$PROJECT.$SYSTEM.$ARCH"
+	ADDON_NAME="$BASE_NAME-$OS_NAME-$PROJECT.$SYSTEM.$ARCH"
 elif [ -n "$DEVICE" ]; then
-	ADDON_NAME="$BASE_NAME-$DEVICE.$ARCH"
+	ADDON_NAME="$BASE_NAME-$OS_NAME-$DEVICE.$ARCH"
 else
-	ADDON_NAME="$BASE_NAME-$PROJECT.$ARCH"
+	ADDON_NAME="$BASE_NAME-$OS_NAME-$PROJECT.$ARCH"
 fi
 
-ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
+ADDON_DIR="$PROJECT_DIR/$BASE_NAME"
 
 ARCHIVE_NAME="$ADDON_NAME.zip"
 
@@ -5910,8 +5911,8 @@ echo
 echo "Making modifications to retroarch.cfg..."
 CFG="config/retroarch.cfg"
 RA_CFG_DIR="\/storage\/\.config\/retroarch"
-RA_CORES_DIR="\/storage\/\.kodi\/addons\/$ADDON_NAME\/lib\/libretro"
-RA_RES_DIR="\/storage\/\.kodi\/addons\/$ADDON_NAME\/resources"
+RA_CORES_DIR="\/storage\/\.kodi\/addons\/$BASE_NAME\/lib\/libretro"
+RA_RES_DIR="\/storage\/\.kodi\/addons\/$BASE_NAME\/resources"
 echo -ne "\tsavefiles "
 sed -i "s/\/storage\/savefiles/$RA_CFG_DIR\/savefiles/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
@@ -5957,7 +5958,7 @@ sed -i "s/\/tmp\/database/$RA_RES_DIR\/database/g" $CFG
 echo
 echo -n "Creating archive..."
 cd ..
-zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$ADDON_NAME" &>"$LOG"
+zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$BASE_NAME" &>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
 echo "Cleaning up..."
