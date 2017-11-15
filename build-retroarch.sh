@@ -4,12 +4,19 @@
 [ -z "$PROJECT" ] && PROJECT=S905
 [ -z "$ARCH" ] && ARCH=arm
 [ -z "$DEVICE" ] && DEVICE=
-[ -z "$SYSTEM" ] && SYSTEM=
 
 LAKKA="$HOME/src/Lakka"
 BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
+VERSION=$(date +%Y%m%d.%H%M%S)
+SCRIPT_DIR=$(pwd)
+PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
+TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
+GIT_BRANCH="Lakka-V2.1-dev"
+BASE_NAME="vudiq.retroarch"
+REPO_DIR="$SCRIPT_DIR/repo"
+ZIPS_DIR="zips"
 
 PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
 
@@ -27,14 +34,14 @@ PACKAGES_WAYLAND="libxkbcommon"
 PACKAGES_SYSUTILS="empty"
 PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-supergrafx beetle-vb beetle-wswan bluemsx cap32 chailove citra crocods desmume dinothawr dosbox easyrpg fbalpha fceumm fuse-libretro gambatte genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
 
+DISABLED_CORES_RPi="ppsspp uae4arm reicast"
+
 PACKAGES_ALL=""
 
 for suffix in $PKG_TYPES ; do
 	varname="PACKAGES_$suffix"
 	PACKAGES_ALL="$PACKAGES_ALL ${!varname}"
 done
-
-DISABLED_CORES_RPi="ppsspp uae4arm reicast"
 
 varname="DISABLED_CORES_$PROJECT"
 DISABLED_CORES="${!varname}"
@@ -45,34 +52,32 @@ if [ -n "$DISABLED_CORES" ] ; then
 	done
 fi
 
-VERSION=$(date +%Y%m%d)
-SCRIPT_DIR=$(pwd)
-PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
-TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
-GIT_BRANCH="Lakka-V2.1-dev"
-BASE_NAME="emulator.tools.retroarch"
-OS_NAME="LibreELEC"
-
-if [ -n "$SYSTEM" ]; then
-	ADDON_NAME="$BASE_NAME-$OS_NAME-$PROJECT.$SYSTEM.$ARCH"
-elif [ -n "$DEVICE" ]; then
-	ADDON_NAME="$BASE_NAME-$OS_NAME-$DEVICE.$ARCH"
+if [ -n "$DEVICE" ]; then
+	ADDON_NAME=$BASE_NAME"."$DEVICE"_"$ARCH
+	RA_NAME_SUFFIX=$DEVICE.$ARCH
 else
-	ADDON_NAME="$BASE_NAME-$OS_NAME-$PROJECT.$ARCH"
+	ADDON_NAME=$BASE_NAME"."$PROJECT"_"$ARCH
+	RA_NAME_SUFFIX=$PROJECT.$ARCH
 fi
 
-ADDON_DIR="$PROJECT_DIR/$BASE_NAME"
+ADDON_NAME=${ADDON_NAME,,}
 
-ARCHIVE_NAME="$ADDON_NAME.zip"
+ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
+
+ARCHIVE_NAME="$ADDON_NAME-$VERSION.zip"
 
 LOG="$SCRIPT_DIR/retroarch-kodi_`date +%Y%m%d_%H%M%S`.log"
+
+# Checks folders
+for folder in $REPO_DIR $REPO_DIR/$ZIPS_DIR $REPO_DIR/$ZIPS_DIR/$ADDON_NAME ; do
+	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
+done
 
 read -d '' message <<EOF
 Building RetroArch KODI add-on for LibreELEC:
 DISTRO=$DISTRO
 PROJECT=$PROJECT
 DEVICE=$DEVICE
-SYSTEM=$SYSTEM
 ARCH=$ARCH
 
 Working in: $SCRIPT_DIR
@@ -92,16 +97,14 @@ if [ -f "$ARCHIVE_NAME" ] ; then
 fi
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
-	git checkout $GIT_BRANCH &>"$LOG"
+	git checkout $GIT_BRANCH &>>"$LOG"
 	echo "Building packages:"
 	for package in $PACKAGES_ALL ; do
 		echo -ne "\t$package "
-		if [ -n "$SYSTEM" ] ; then
-			DISTRO=$DISTRO PROJECT=$PROJECT SYSTEM=$SYSTEM ARCH=$ARCH ./$SCRIPT $package &>"$LOG"
-		elif [ -n "$DEVICE" ] ; then
-			DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>"$LOG"
+		if [ -n "$DEVICE" ] ; then
+			DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>>"$LOG"
 		else
-			DISTRO=$DISTRO PROJECT=$PROJECT ARCH=$ARCH ./$SCRIPT $package &>"$LOG"
+			DISTRO=$DISTRO PROJECT=$PROJECT ARCH=$ARCH ./$SCRIPT $package &>>"$LOG"
 		fi
 		if [ $? -eq 0 ] ; then
 			echo "(ok)"
@@ -114,7 +117,7 @@ if [ -d "$LAKKA" ] ; then
 	echo
 	if [ ! -d "$TARGET_DIR" ] ; then
 		echo -n "Creating target folder '$TARGET_DIR'..."
-		mkdir -p "$TARGET_DIR" &>"$LOG"
+		mkdir -p "$TARGET_DIR" &>>"$LOG"
 		if [ $? -eq 0 ] ; then
 			echo "done."
 		else
@@ -140,7 +143,7 @@ if [ -d "$LAKKA" ] ; then
 			fi
 			PKG_FOLDER="$BUILD_SUBDIR/$package-$PKG_VERSION/.install_pkg"
 			if [ -d "$PKG_FOLDER" ] ; then
-				cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>"$LOG"
+				cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>>"$LOG"
 				[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 			else
 				echo "(skipped - not found)"
@@ -155,52 +158,52 @@ else
 fi
 if [ -d "$ADDON_DIR" ] ; then
 	echo -n "Removing previous addon..."
-	rm -rf "$ADDON_DIR" &>"$LOG"
+	rm -rf "$ADDON_DIR" &>>"$LOG"
 	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error removing folder '$ADDON_DIR'!" ; exit 1 ; }
 	echo
 fi
 echo -n "Creating addon folder..."
-mkdir -p "$ADDON_DIR" &>"$LOG"
+mkdir -p "$ADDON_DIR" &>>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error creating folder '$ADDON_DIR'!" ; exit 1 ; }
 echo
 cd "$ADDON_DIR"
 echo "Creating folder structure..."
 for f in config resources ; do
 	echo -ne "\t$f "
-	mkdir $f &>"$LOG"
+	mkdir $f &>>"$LOG"
 	[ $? -eq 0 ] && echo -e "(ok)" || { echo -e "(failed)" ; exit 1 ; }
 done
 echo
 echo "Moving files to addon..."
 echo -ne "\tretroarch.cfg "
-mv "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>"$LOG"
+mv "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tjoypads "
-mv "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>"$LOG"
+mv "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tbinaries "
-mv "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>"$LOG"
+mv "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tlibraries and cores "
-mv "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>"$LOG"
+mv "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taudio filters "
-mv "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>"$LOG"
+mv "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tvideo filters "
-mv "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>"$LOG"
+mv "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tshaders "
-mv "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>"$LOG"
+mv "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tdatabases "
-mv "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>"$LOG"
+mv "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tassets "
-mv "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>"$LOG"
+mv "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\toverlays "
-mv "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>"$LOG"
+mv "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Creating files..."
@@ -210,7 +213,7 @@ read -d '' content <<EOF
 
 . /etc/profile
 
-oe_setup_addon emulator.tools.retroarch
+oe_setup_addon $ADDON_NAME
 
 systemd-run \$ADDON_DIR/bin/retroarch.start
 EOF
@@ -223,10 +226,10 @@ read -d '' content <<EOF
 
 . /etc/profile
 
-oe_setup_addon emulator.tools.retroarch
+oe_setup_addon $ADDON_NAME
 
 PATH="\$ADDON_DIR/bin:\$PATH"
-LD_LIBRARY_PATH="$ADDON_DIR/lib:\$LD_LIBRARY_PATH"
+LD_LIBRARY_PATH="\$ADDON_DIR/lib:\$LD_LIBRARY_PATH"
 RA_CONFIG_DIR="/storage/.config/retroarch/"
 RA_CONFIG_FILE="\$RA_CONFIG_DIR/retroarch.cfg"
 RA_CONFIG_SUBDIRS="savestates savefiles remappings playlists system thumbnails"
@@ -268,26 +271,30 @@ chmod +x bin/retroarch.start
 echo -ne "\taddon.xml "
 read -d '' content <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="emulator.tools.retroarch" name="RetroArch" version="$VERSION" provider-name="libreelec.tv">
-<requires>
-<import addon="os.libreelec.tv" version="8.2"/>
-<import addon="xbmc.python" version="2.1.0"/>
-</requires>
-<extension point="xbmc.python.pluginsource" library="default.py">
-<provides>executable</provides>
-</extension>
-<extension point="xbmc.addon.metadata">
-<summary>RetroArch addon. Provides binary, cores and basic settings to launch it</summary>
-<description>
-RetroArch addon based on source modified by Lakka project.
-Provides binary and core libraries compiled for S905 ARM, and basic settings to launch it.
-Lakka is Just Enough OS for RetroArch - check out this project at www.lakka.tv.
-</description>
-<disclaimer>
-This is an unofficial addon. Please don't ask for support in LibreELEC or Lakka forums / irc channels.
-</disclaimer>
-<platform>all</platform>
-</extension>
+<addon id="$ADDON_NAME" name="RetroArch ($RA_NAME_SUFFIX)" version="$VERSION" provider-name="$USER">
+	<requires>
+		<import addon="os.libreelec.tv" version="8.2"/>
+		<import addon="xbmc.python" version="2.1.0"/>
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="default.py">
+		<provides>executable</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>RetroArch addon. Provides binary, cores and basic settings to launch it</summary>
+		<description>
+			RetroArch addon based on source modified by Lakka project.
+			Provides binary and core libraries compiled for S905 ARM, and basic settings to launch it.
+			Lakka is Just Enough OS for RetroArch - check out this project at www.lakka.tv.
+		</description>
+		<disclaimer>
+			This is an unofficial addon. Please don't ask for support in LibreELEC or Lakka forums / irc channels.
+		</disclaimer>
+		<platform>linux</platform>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+		</assets>
+	</extension>
 </addon>
 EOF
 echo "$content" > addon.xml
@@ -298,14 +305,14 @@ import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import os
 import util
 
-ADDON_ID = 'emulator.tools.retroarch'
+ADDON_ID = '$ADDON_NAME'
 
 addon = xbmcaddon.Addon(id=ADDON_ID)
 addon_dir = xbmc.translatePath( addon.getAddonInfo('path') )
 addonfolder = addon.getAddonInfo('path')
 
-icon    = addonfolder + '/icon.png'
-fanart  = addonfolder + '/fanart.jpg'
+icon    = addonfolder + 'resources/icon.png'
+fanart  = addonfolder + 'resources/fanart.jpg'
 
 util.runRetroarchMenu()
 EOF
@@ -315,7 +322,7 @@ echo -ne "\tutil.py "
 read -d '' content <<EOF
 import os, xbmc, xbmcaddon
 
-ADDON_ID = 'emulator.tools.retroarch'
+ADDON_ID = '$ADDON_NAME'
 BIN_FOLDER="bin"
 RETROARCH_EXEC="retroarch.sh"
 
@@ -337,7 +344,7 @@ import xbmcgui
 import xbmcaddon
 
 def makeFilesExecutable():
-	scriptPathBin = xbmc.translatePath(xbmcaddon.Addon(id = 'emulator.tools.retroarch').getAddonInfo('path'))
+	scriptPathBin = xbmc.translatePath(xbmcaddon.Addon(id = '$ADDON_NAME').getAddonInfo('path'))
 	scriptPathBin = os.path.join(scriptPathBin, 'bin')
 	file1 = os.path.join(scriptPathBin, 'retroarch.sh')
 	file2 = os.path.join(scriptPathBin, 'retroarch.start')
@@ -363,13 +370,13 @@ echo -ne "\tsettings.xml "
 read -d '' content <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
-<category label="General">
-<setting label="How to handle KODI when launching RetroArch" type="lsep" />
-<setting id="launch_method" label="" type="enum" default="1" values="Pause KODI process (keep it in memory)|Stop KODI process (free memory)" />
-<setting type="lsep" />
-<setting label="Scripts Permissions (try only if RetroArch does not launch)" type="lsep" />
-<setting label="Click to fix permissions of scripts to make them executable" type="action" action="RunScript(\$CWD/makeExecutable.py)" />
-</category>
+	<category label="General">
+		<setting label="How to handle KODI when launching RetroArch" type="lsep" />
+		<setting id="launch_method" label="" type="enum" default="1" values="Pause KODI process (keep it in memory)|Stop KODI process (free memory)" />
+		<setting type="lsep" />
+		<setting label="Scripts Permissions (try only if RetroArch does not launch)" type="lsep" />
+		<setting label="Click to fix permissions of scripts to make them executable" type="action" action="RunScript(\$CWD/makeExecutable.py)" />
+	</category>
 </settings>
 EOF
 echo "$content" > resources/settings.xml
@@ -377,13 +384,13 @@ echo "$content" > resources/settings.xml
 echo -ne "\tsettings-default.xml "
 read -d '' content <<EOF
 <settings>
-<setting id="launch_method" value="1" />
+	<setting id="launch_method" value="1" />
 </settings>
 EOF
 echo "$content"  > settings-default.xml
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tfanart.jpg "
-read -d '' content <<EOF
+read -d '' fanart <<EOF
 /9j/4AAQSkZJRgABAQEAYABgAAD/4QBaRXhpZgAATU0AKgAAAAgABAEyAAIAAAAUAAAAPlEQAAEA
 AAABAQAAAFERAAQAAAABAAALE1ESAAQAAAABAAALEwAAAAAyMDE2OjAzOjEyIDIwOjAzOjU1AP/b
 AEMAAgEBAgEBAgICAgICAgIDBQMDAwMDBgQEAwUHBgcHBwYHBwgJCwkICAoIBwcKDQoKCwwMDAwH
@@ -5851,10 +5858,10 @@ n3Pj+7UTnLfSlY7V96YTtFBsI5yaic5P0p7NgVHQAVHO3G3161ITtFVy245NBoI5wKjZtopzHJqN
 jlvpQVshCdq1Xzk5PepJ3z8v4mozQEQFRzv/AA/iakJwKrk7jmpWupsBOBUdOc8000SLiHemTyeX
 H79BT+lV7h98nsvFJFIjHApjnLU8nAqOnIsKKKKkAooooAKKKKACiiigAooooA//2Q==
 EOF
-echo "$content" | base64 --decode > fanart.jpg
+echo "$fanart" | base64 --decode > resources/fanart.jpg
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\ticon.png "
-read -d '' content <<EOF
+read -d '' icon <<EOF
 iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI
 WXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH3gcfBi4RO4AZSgAACkZJREFUeNrt3V9olvXfwPHPntsm
 mylzyqaE2ZRGivTHJCxIsLVgnUnLI4XC/hBGlnRiCtFJrJMhqdQGoyKPpih0oAdNQ4WOtlohakqL
@@ -5905,14 +5912,14 @@ HUm7T2UqAMBd+ggACAAgAIAAAAIACAAgAIAAAAIACAAgAIAAAAIACAAgAIAAAAIACAAgACAAgAAA
 AgAIACAAgAAAAgAIACAAgAAAAgAIACAAgAAAAgAIACAAgAAAAgAIACAAwB30n57cQCkJfap5AAAA
 AElFTkSuQmCC
 EOF
-echo "$content" | base64 --decode > icon.png
+echo "$icon" | base64 --decode > resources/icon.png
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Making modifications to retroarch.cfg..."
 CFG="config/retroarch.cfg"
 RA_CFG_DIR="\/storage\/\.config\/retroarch"
-RA_CORES_DIR="\/storage\/\.kodi\/addons\/$BASE_NAME\/lib\/libretro"
-RA_RES_DIR="\/storage\/\.kodi\/addons\/$BASE_NAME\/resources"
+RA_CORES_DIR="\/storage\/\.kodi\/addons\/$ADDON_NAME\/lib\/libretro"
+RA_RES_DIR="\/storage\/\.kodi\/addons\/$ADDON_NAME\/resources"
 echo -ne "\tsavefiles "
 sed -i "s/\/storage\/savefiles/$RA_CFG_DIR\/savefiles/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
@@ -5958,8 +5965,29 @@ sed -i "s/\/tmp\/database/$RA_RES_DIR\/database/g" $CFG
 echo
 echo -n "Creating archive..."
 cd ..
-zip -r "$SCRIPT_DIR/$ARCHIVE_NAME" "$BASE_NAME" &>"$LOG"
+zip -y -r "$ARCHIVE_NAME" "$ADDON_NAME" &>>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+echo
+echo -n "Removing old repository..."
+rm -rf "$REPO_DIR/$ADDON_NAME" &>>"$LOG"
+[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+echo
+echo "Moving to repository..."
+echo -ne "\tzip "
+mv "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/" &>>"$LOG"
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+echo -ne "\tsymlink "
+ln -s "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/$ADDON_NAME-LATEST.zip"
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+echo -ne "\ticon.png "
+echo "$icon" | base64 --decode > "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/icon.png"
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+echo -ne "\tfanart.jpg "
+echo "$fanart" | base64 --decode > "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/fanart.jpg"
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+echo -ne "\tfolder "
+mv "$ADDON_NAME" "$REPO_DIR" &>>"$LOG"
+[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Cleaning up..."
 cd "$SCRIPT_DIR"

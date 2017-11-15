@@ -9,14 +9,23 @@ systemd-run \$ADDON_DIR/bin/retroarch.start
 ```
 systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output.txt
 ```
-*or modify the file `/storage/.kodi/addons/emulator.tools.retroarch/bin/retroarch.start` on the LibreELEC device.*
+*or modify the file e.g. `/storage/.kodi/addons/vudiq.retroarch.generic_x86_64/bin/retroarch.sh` on the LibreELEC device.*
 
-Builds for testing can be found [here](https://vps.vudiq.sk/kodi-retroarch). Currently available builds:
-- S905.arm
-- Generic.x86\_64
-- Generic.i386
-- RPi.arm
-- RPi2.arm
+Builds for testing / testing repository can be found [here](https://vps.vudiq.sk/retroarch-kodi/). Currently available builds:
+- Generic PC / 64-bit
+- Generic PC / 32-bit
+- RPi
+- RPi2
+- Odroid C1
+- Odroid C2
+- Odroid XU3
+- imx6
+- ROCK64
+- MiQi
+- TinkerBoard
+- Wetek Core
+- Wetek Hup
+- Allwinner
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
@@ -72,9 +81,9 @@ Examples for other devices (the project/device/system/architecture must be the s
 ```bash
 PROJECT=Generic ARCH=x86_64 ./build_retroarch.sh     # build for generic 64-bit PC
 PROJECT=RPi ARCH=arm ./build_retroarch.sh            # build for Raspberry Pi
-PROJECT=S805 SYSTEM=MXQ ARCH=arm ./build_retroarch   # build for MXQ (S805 SoC)
+PROJECT=S805 ARCH=arm ./build_retroarch              # build for devices with S805 SoC
 ```
-First time the building/compiling process will take some time (the first package will look like it is compiling really long, but in the background the whole toolchain is being compiled), when it is finished, you will have a file called `emulator.tools.retroarch-LibreELEC-S905.arm.zip` (S905.arm will be replaced by the target device/architecture) in your folder. You can install this add-on in [KODI](http://kodi.wiki/view/HOW-TO:Install_add-ons_from_zip_files) (copy it to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
+First time the building/compiling process will take some time (the first package will look like it is compiling really long, but in the background the whole toolchain is being compiled), when it is finished, you will have the result stored in the folder defined in `REPO_DIR`. You can install this add-on in [KODI](http://kodi.wiki/view/HOW-TO:Install_add-ons_from_zip_files) (copy the ZIP file to your LibreELEC device via scp or samba). After the installation is successful, in add-on settings run the Script Permissions to make the add-on scripts and binaries executable.
 
 You have to put BIOS files (see [Lakka documentation - BIOSes](http://www.lakka.tv/doc/BIOSes/)) to the `/storage/.config/retroarch/system` folder. This folder (and all other folders) will be created with the first start of RetroArch. *Never ask for BIOS files in IRC channels or formus of LibreELEC or Lakka!*
 
