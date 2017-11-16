@@ -28,6 +28,7 @@ Builds for testing / testing repository can be found [here](https://vps.vudiq.sk
 - WeTek Play 2
 - Allwinner devices (Bananapi, orangepi, etc.)
 - S8X2 devices (S82, S8, M8, MXIII-1G, etc.)
+- S805 devices (MXQ, HD18Q, etc.)
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:

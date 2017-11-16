@@ -15,7 +15,7 @@ PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
 BASE_NAME="vudiq.retroarch"
-REPO_DIR="/var/www/vps.vudiq.sk/repository_kodi"
+REPO_DIR="$SCRIPT_DIR/repo"
 ZIPS_DIR="zips"
 
 PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
@@ -90,7 +90,7 @@ echo
 for folder in $REPO_DIR $REPO_DIR/$ZIPS_DIR $REPO_DIR/$ZIPS_DIR/$ADDON_NAME ; do
 	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
 done
-
+echo
 
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
