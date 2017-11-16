@@ -12,14 +12,13 @@ systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output
 *or modify the file e.g. `/storage/.kodi/addons/vudiq.retroarch.generic_x86_64/bin/retroarch.sh` on the LibreELEC device.*
 
 Builds for testing / testing repository can be found [here](https://vps.vudiq.sk/repository_kodi/). Currently available builds:
-- Generic PC / 64-bit
-- Generic PC / 32-bit
+- Generic PC (32/64-bit)
 - RPi
 - RPi2
 - Odroid C1
 - Odroid C2
 - Odroid XU3
-- imx6
+- imx6 devices (cuboxi, udoo)
 - ROCK64
 - MiQi
 - TinkerBoard
@@ -27,7 +26,8 @@ Builds for testing / testing repository can be found [here](https://vps.vudiq.sk
 - WeTek Hub
 - WeTek Play
 - WeTek Play 2
-- Allwinner
+- Allwinner devices (Bananapi, orangepi, etc.)
+- S8X2 devices (S82, S8, M8, MXIII-1G, etc.)
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
