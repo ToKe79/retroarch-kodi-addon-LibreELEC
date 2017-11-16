@@ -23,8 +23,10 @@ Builds for testing / testing repository can be found [here](https://vps.vudiq.sk
 - ROCK64
 - MiQi
 - TinkerBoard
-- Wetek Core
-- Wetek Hup
+- WeTek Core
+- WeTek Hub
+- WeTek Play
+- WeTek Play 2
 - Allwinner
 
 # Usage
