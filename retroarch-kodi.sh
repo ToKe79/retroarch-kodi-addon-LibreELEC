@@ -234,8 +234,6 @@ RA_EXE="\$ADDON_DIR/bin/retroarch"
 ROMS_FOLDER="/storage/roms"
 DOWNLOADS="downloads"
 
-chmod +x bin/*
-
 [ ! -d "\$RA_CONFIG_DIR" ] && mkdir -p "\$RA_CONFIG_DIR"
 [ ! -d "\$ROMS_FOLDER" ] && mkdir -p "\$ROMS_FOLDER"
 [ ! -d "\$ROMS_FOLDER/\$DOWNLOADS" ] && mkdir -p "\$ROMS_FOLDER/\$DOWNLOADS"
@@ -249,6 +247,14 @@ if [ ! -f "\$RA_CONFIG_FILE" ]; then
 		cp "\$ADDON_DIR/config/retroarch.cfg" "\$RA_CONFIG_FILE"
 	fi
 fi
+
+# create symlinks to libraries
+ln -sf libxkbcommon.so.0.0.0 \$ADDON_DIR/lib/libxkbcommon.so
+ln -sf libxkbcommon.so.0.0.0 \$ADDON_DIR/lib/libxkbcommon.so.0
+ln -sf libvdpau.so.1.0.0 \$ADDON_DIR/lib/libvdpau.so
+ln -sf libvdpau.so.1.0.0 \$ADDON_DIR/lib/libvdpau.so.1
+ln -sf libvdpau_trace.so.1.0.0 \$ADDON_DIR/lib/vdpau/libvdpau_trace.so
+ln -sf libvdpau_trace.so.1.0.0 \$ADDON_DIR/lib/vdpau/libvdpau_trace.so.1
 
 if [ "\$launch_method" -ne 0 ]; then
 	systemctl stop kodi
