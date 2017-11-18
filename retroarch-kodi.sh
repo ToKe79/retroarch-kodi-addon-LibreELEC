@@ -5,7 +5,7 @@
 [ -z "$ARCH" ] && ARCH=arm
 [ -z "$DEVICE" ] && DEVICE=
 
-LAKKA="$HOME/src/Lakka"
+LAKKA="$HOME/src/Lakka-LibreELEC"
 BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
