@@ -355,8 +355,8 @@ def makeFilesExecutable():
 		d.ok('RetroArch', 'File permissions applied', 'scripts should now be executable')
 
 	except:
-	d = xbmcgui.Dialog()
-	d.ok('RetroArch', 'Failed to apply permissions', 'Please try again later or do it manualy via ssh')
+		d = xbmcgui.Dialog()
+		d.ok('RetroArch', 'Failed to apply permissions', 'Please try again later or do it manualy via ssh')
 
 if __name__ == '__main__':
 	makeFilesExecutable()
