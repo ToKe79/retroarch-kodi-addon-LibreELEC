@@ -5982,7 +5982,7 @@ echo -ne "\tzip "
 mv "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tsymlink "
-ln -s "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/$ADDON_NAME-LATEST.zip"
+ln -sf "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/$ADDON_NAME-LATEST.zip"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\ticon.png "
 echo "$icon" | base64 --decode > "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/icon.png"
