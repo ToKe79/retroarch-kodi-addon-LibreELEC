@@ -249,13 +249,15 @@ RA_CONFIG_SUBDIRS="savestates savefiles remappings playlists system thumbnails"
 RA_EXE="\$ADDON_DIR/bin/retroarch"
 ROMS_FOLDER="/storage/roms"
 DOWNLOADS="downloads"
+RA_PARAMS="--config=\$RA_CONFIG_FILE --menu"
+LOGFILE="/storage/retroarch.log"
 
 [ ! -d "\$RA_CONFIG_DIR" ] && mkdir -p "\$RA_CONFIG_DIR"
 [ ! -d "\$ROMS_FOLDER" ] && mkdir -p "\$ROMS_FOLDER"
 [ ! -d "\$ROMS_FOLDER/\$DOWNLOADS" ] && mkdir -p "\$ROMS_FOLDER/\$DOWNLOADS"
 
-for f in \$RA_CONFIG_SUBDIRS ; do
-	[ ! -d "\$RA_CONFIG_DIR/\$f" ] && mkdir -p "\$RA_CONFIG_DIR/\$f"
+for subdir in \$RA_CONFIG_SUBDIRS ; do
+	[ ! -d "\$RA_CONFIG_DIR/\$subdir" ] && mkdir -p "\$RA_CONFIG_DIR/\$subdir"
 done
 
 if [ ! -f "\$RA_CONFIG_FILE" ]; then
@@ -272,13 +274,23 @@ ln -sf libvdpau.so.1.0.0 \$ADDON_DIR/lib/libvdpau.so.1
 ln -sf libvdpau_trace.so.1.0.0 \$ADDON_DIR/lib/vdpau/libvdpau_trace.so
 ln -sf libvdpau_trace.so.1.0.0 \$ADDON_DIR/lib/vdpau/libvdpau_trace.so.1
 
-if [ "\$launch_method" -ne 0 ]; then
+[ \$ra_verbose -eq 1 ] && RA_PARAMS="--verbose \$RA_PARAMS"
+
+if [ "\$ra_stop_kodi" -eq 1 ] ; then
 	systemctl stop kodi
-	\$RA_EXE -c \$RA_CONFIG_FILE --menu
+	if [ \$ra_log -eq 1 ] ; then
+		\$RA_EXE \$RA_PARAMS >\$LOGFILE 2>&1
+	else
+		\$RA_EXE \$RA_PARAMS
+	fi
 	systemctl start kodi
 else
 	pgrep kodi.bin | xargs kill -SIGSTOP
-	\$RA_EXE -c \$RA_CONFIG_FILE --menu
+	if [ \$ra_log -eq 1 ] ; then
+		\$RA_EXE \$RA_PARAMS >\$LOGFILE 2>&1
+	else
+		\$RA_EXE \$RA_PARAMS
+	fi
 	pgrep kodi.bin | xargs kill -SIGCONT
 fi
 
@@ -300,14 +312,8 @@ read -d '' content <<EOF
 	</extension>
 	<extension point="xbmc.addon.metadata">
 		<summary>RetroArch addon. Provides binary, cores and basic settings to launch it</summary>
-		<description>
-			RetroArch addon based on source modified by Lakka project.
-			Provides binary and core libraries compiled for S905 ARM, and basic settings to launch it.
-			Lakka is Just Enough OS for RetroArch - check out this project at www.lakka.tv.
-		</description>
-		<disclaimer>
-			This is an unofficial addon. Please don't ask for support in LibreELEC or Lakka forums / irc channels.
-		</disclaimer>
+		<description>RetroArch addon based on source modified by Lakka project. Provides binary, cores and basic settings to launch it. Lakka is Just Enough OS for RetroArch - check out this project at www.lakka.tv.</description>
+		<disclaimer>This is an unofficial add-on. Please don't ask for support in LibreELEC or Lakka forums / irc channels.</disclaimer>
 		<platform>linux</platform>
 		<assets>
 			<icon>resources/icon.png</icon>
@@ -355,46 +361,14 @@ def runRetroarchMenu():
 EOF
 echo "$content" > util.py
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
-echo -ne "\tmakeExecutable.py "
-read -d '' content <<EOF
-import os, stat
-import xbmc
-import xbmcgui
-import xbmcaddon
-
-def makeFilesExecutable():
-	scriptPathBin = xbmc.translatePath(xbmcaddon.Addon(id = '$ADDON_NAME').getAddonInfo('path'))
-	scriptPathBin = os.path.join(scriptPathBin, 'bin')
-	file1 = os.path.join(scriptPathBin, 'retroarch.sh')
-	file2 = os.path.join(scriptPathBin, 'retroarch.start')
-	file3 = os.path.join(scriptPathBin, 'retroarch')
-
-	try:
-		os.chmod(file1, stat.S_IRWXU|stat.S_IRWXG|stat.S_IROTH|stat.S_IXOTH)
-		os.chmod(file2, stat.S_IRWXU|stat.S_IRWXG|stat.S_IROTH|stat.S_IXOTH)
-		os.chmod(file3, stat.S_IRWXU|stat.S_IRWXG|stat.S_IROTH|stat.S_IXOTH)
-		d = xbmcgui.Dialog()
-		d.ok('RetroArch', 'File permissions applied', 'scripts should now be executable')
-
-	except:
-		d = xbmcgui.Dialog()
-		d.ok('RetroArch', 'Failed to apply permissions', 'Please try again later or do it manualy via ssh')
-
-if __name__ == '__main__':
-	makeFilesExecutable()
-EOF
-echo "$content" > makeExecutable.py
-[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tsettings.xml "
 read -d '' content <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
 	<category label="General">
-		<setting label="How to handle KODI when launching RetroArch" type="lsep" />
-		<setting id="launch_method" label="" type="enum" default="1" values="Pause KODI process (keep it in memory)|Stop KODI process (free memory)" />
-		<setting type="lsep" />
-		<setting label="Scripts Permissions (try only if RetroArch does not launch)" type="lsep" />
-		<setting label="Click to fix permissions of scripts to make them executable" type="action" action="RunScript(\$CWD/makeExecutable.py)" />
+		<setting id="ra_stop_kodi" label="Stop KODI (free memory) before launching Retroarch" type="enum" default="1" values="No|Yes" />
+		<setting id="ra_log" label="Logging of RetroArch output" type="enum" default="0" values="No|Yes" />
+		<setting id="ra_verbose" label="Verbose logging (for debugging)" type="enum" default="0" values="No|Yes" />
 	</category>
 </settings>
 EOF
@@ -403,7 +377,9 @@ echo "$content" > resources/settings.xml
 echo -ne "\tsettings-default.xml "
 read -d '' content <<EOF
 <settings>
-	<setting id="launch_method" value="1" />
+	<setting id="ra_stop_kodi" value="1" />
+	<setting id="ra_log" value="0" />
+	<setting id="ra_verbose" value="0" />
 </settings>
 EOF
 echo "$content"  > settings-default.xml
