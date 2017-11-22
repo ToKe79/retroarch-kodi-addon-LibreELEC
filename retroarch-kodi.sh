@@ -18,6 +18,7 @@ BASE_NAME="vudiq.retroarch"
 REPO_DIR="$SCRIPT_DIR/repo"
 ZIPS_DIR="zips"
 REPO_UPDATE_SCRIPT="addons_xml_generator.py"
+UPDATE_ADDONS_XML=1
 
 PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
 
@@ -94,10 +95,16 @@ done
 echo
 
 if [ ! -e "$REPO_DIR/$REPO_UPDATE_SCRIPT" ] ; then
-	echo -n "Copying repository update script..."
-	cp -v "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" "$REPO_DIR/$REPO_UPDATE_SCRIPT" &>>"$LOG"
-	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
-	echo
+	if [ -e "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" ] ; then
+		echo -n "Copying repository update script..."
+		cp -v "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" "$REPO_DIR/$REPO_UPDATE_SCRIPT" &>>"$LOG"
+		[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+		echo
+	else
+		echo "$REPO_UPDATE_SCRIPT not found! Not copied to '$REPO_DIR', no auto-update of addons.xml!"
+		UPDATE_ADDONS_XML=0
+		echo
+	fi
 fi
 
 if [ -d "$LAKKA" ] ; then
@@ -6011,9 +6018,11 @@ echo -ne "\tlog file "
 rm -rf "$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
-echo -n "Updating repository..."
-cd "$REPO_DIR" &>>"$LOG"
-./$ADDON_UPDATE_SCRIPT &>>"$LOG"
-[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
-echo
+if [ $UPDATE_ADDONS_XML -eq 1 ] ; then
+	echo -n "Updating repository..."
+	cd "$REPO_DIR" &>>"$LOG"
+	./$ADDON_UPDATE_SCRIPT &>>"$LOG"
+	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+	echo
+fi
 echo "Finished."
