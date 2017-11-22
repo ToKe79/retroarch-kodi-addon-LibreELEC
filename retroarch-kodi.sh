@@ -4,12 +4,12 @@
 [ -z "$PROJECT" ] && PROJECT=S905
 [ -z "$ARCH" ] && ARCH=arm
 [ -z "$DEVICE" ] && DEVICE=
+[ -z "$VERSION" ] && VERSION=$(date +%Y%m%d.%H%M%S)
 
 LAKKA="$HOME/src/Lakka-LibreELEC"
 BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
-VERSION=$(date +%Y%m%d.%H%M%S)
 SCRIPT_DIR=$(pwd)
 PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
@@ -17,6 +17,7 @@ GIT_BRANCH="Lakka-V2.1-dev"
 BASE_NAME="vudiq.retroarch"
 REPO_DIR="$SCRIPT_DIR/repo"
 ZIPS_DIR="zips"
+REPO_UPDATE_SCRIPT="addons_xml_generator.py"
 
 PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
 
@@ -91,6 +92,13 @@ for folder in $REPO_DIR $REPO_DIR/$ZIPS_DIR $REPO_DIR/$ZIPS_DIR/$ADDON_NAME ; do
 	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
 done
 echo
+
+if [ ! -e "$REPO_DIR/$REPO_UPDATE_SCRIPT" ] ; then
+	echo -n "Copying repository update script..."
+	cp -v "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" "$REPO_DIR/$REPO_UPDATE_SCRIPT" &>>"$LOG"
+	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
+	echo
+fi
 
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
@@ -6002,5 +6010,10 @@ rm -rf "$PROJECT_DIR"
 echo -ne "\tlog file "
 rm -rf "$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
+echo
+echo -n "Updating repository..."
+cd "$REPO_DIR" &>>"$LOG"
+./$ADDON_UPDATE_SCRIPT &>>"$LOG"
+[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
 echo "Finished."

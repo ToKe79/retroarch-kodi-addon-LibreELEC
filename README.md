@@ -1,15 +1,7 @@
 # RetroArch KODI add-on for LibreELEC
 This script creates KODI add-on from Lakka sources for LibreELEC devices. Still work-in-progress, resulting builds have not been tested yet. Default build is for S905 ARM devices.
 
-*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch-kodi-addon-LibreELEC/issues/new) with the name of the missing library. To get the output from the start, just change this line in the build script:*
-```
-systemd-run \$ADDON_DIR/bin/retroarch.start
-```
-*to:*
-```
-systemd-run \$ADDON_DIR/bin/retroarch.start &> /storage/.config/retroarch/output.txt
-```
-*or modify the file e.g. `/storage/.kodi/addons/vudiq.retroarch.generic_x86_64/bin/retroarch.sh` on the LibreELEC device.*
+*Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch-kodi-addon-LibreELEC/issues/new) with the name of the missing library.*
 
 Builds for testing / testing repository can be found [here](https://vps.vudiq.sk/repository_kodi/). Currently available builds:
 - Generic PC (32/64-bit)
