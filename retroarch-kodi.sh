@@ -5,20 +5,18 @@
 [ -z "$ARCH" ] && ARCH=arm
 [ -z "$DEVICE" ] && DEVICE=
 [ -z "$VERSION" ] && VERSION=$(date +%Y%m%d.%H%M%S)
+[ -z "$SCRIPT_DIR" ] && SCRIPT_DIR=$(pwd)
+[ -z "$REPO_DIR" ] && REPO_DIR="$SCRIPT_DIR/repo"
+[ -z "$PROVIDER" ] && PROVIDER="$USER"
 
 LAKKA="$HOME/src/Lakka-LibreELEC"
 BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
-SCRIPT_DIR=$(pwd)
 PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
 TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
-BASE_NAME="vudiq.retroarch"
-REPO_DIR="$SCRIPT_DIR/repo"
-ZIPS_DIR="zips"
-REPO_UPDATE_SCRIPT="addons_xml_generator.py"
-UPDATE_ADDONS_XML=1
+BASE_NAME="$PROVIDER.retroarch"
 
 PKG_TYPES="LIBRETRO MULTIMEDIA TOOLS NETWORK WAYLAND SYSUTILS"
 
@@ -37,6 +35,7 @@ PACKAGES_SYSUTILS="empty"
 PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-supergrafx beetle-vb beetle-wswan bluemsx cap32 chailove citra crocods desmume dinothawr dosbox easyrpg fbalpha fceumm fuse-libretro gambatte genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
 
 DISABLED_CORES_RPi="ppsspp uae4arm reicast"
+DISABLED_CORES_Gamegirl="ppsspp uae4arm reicast"
 
 PACKAGES_ALL=""
 
@@ -63,11 +62,8 @@ else
 fi
 
 ADDON_NAME=${ADDON_NAME,,}
-
 ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
-
 ARCHIVE_NAME="$ADDON_NAME-$VERSION.zip"
-
 LOG="$SCRIPT_DIR/retroarch-kodi_`date +%Y%m%d_%H%M%S`.log"
 
 read -d '' message <<EOF
@@ -82,31 +78,17 @@ VERSION=$VERSION
 Working in: $SCRIPT_DIR
 Temporary project folder: $TARGET_DIR
 
-Target zip: $REPO_DIR/$ZIPS_DIR/$ARCHIVE_NAME
-Target folder: $REPO_DIR/$ADDON_NAME
+Target zip: $REPO_DIR/$ADDON_NAME/$ARCHIVE_NAME
 EOF
 
 echo "$message"
 echo
 
 # Checks folders
-for folder in $REPO_DIR $REPO_DIR/$ZIPS_DIR $REPO_DIR/$ZIPS_DIR/$ADDON_NAME ; do
+for folder in $REPO_DIR $REPO_DIR/$ADDON_NAME $REPO_DIR/$ADDON_NAME/resources ; do
 	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
 done
 echo
-
-if [ ! -e "$REPO_DIR/$REPO_UPDATE_SCRIPT" ] ; then
-	if [ -e "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" ] ; then
-		echo -n "Copying repository update script..."
-		cp -v "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" "$REPO_DIR/$REPO_UPDATE_SCRIPT" &>>"$LOG"
-		[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
-		echo
-	else
-		echo "$REPO_UPDATE_SCRIPT not found! Not copied to '$REPO_DIR', no auto-update of addons.xml!"
-		UPDATE_ADDONS_XML=0
-		echo
-	fi
-fi
 
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
@@ -189,34 +171,34 @@ done
 echo
 echo "Moving files to addon..."
 echo -ne "\tretroarch.cfg "
-mv "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>>"$LOG"
+mv -v "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tjoypads "
-mv "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>>"$LOG"
+mv -v "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tbinaries "
-mv "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tlibraries and cores "
-mv "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taudio filters "
-mv "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tvideo filters "
-mv "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tshaders "
-mv "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tdatabases "
-mv "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tassets "
-mv "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\toverlays "
-mv "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>>"$LOG"
+mv -v "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Creating files..."
@@ -300,9 +282,9 @@ echo "$content" > bin/retroarch.start
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 chmod +x bin/retroarch.start
 echo -ne "\taddon.xml "
-read -d '' content <<EOF
+read -d '' addon <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="$ADDON_NAME" name="RetroArch ($RA_NAME_SUFFIX)" version="$VERSION" provider-name="$USER">
+<addon id="$ADDON_NAME" name="RetroArch ($RA_NAME_SUFFIX)" version="$VERSION" provider-name="$PROVIDER">
 	<requires>
 		<import addon="os.libreelec.tv" version="8.2"/>
 		<import addon="xbmc.python" version="2.1.0"/>
@@ -311,9 +293,9 @@ read -d '' content <<EOF
 		<provides>executable</provides>
 	</extension>
 	<extension point="xbmc.addon.metadata">
-		<summary>RetroArch addon. Provides binary, cores and basic settings to launch it</summary>
-		<description>RetroArch addon based on source modified by Lakka project. Provides binary, cores and basic settings to launch it. Lakka is Just Enough OS for RetroArch - check out this project at www.lakka.tv.</description>
-		<disclaimer>This is an unofficial add-on. Please don't ask for support in LibreELEC or Lakka forums / irc channels.</disclaimer>
+		<summary lang="en">RetroArch addon. Provides binary, cores and basic settings to launch it</summary>
+		<description lang="en">RetroArch addon based on source modified by Lakka project. Provides binary, cores and basic settings to launch it. Lakka is Just Enough OS for RetroArch - check out this project at www.lakka.tv.</description>
+		<disclaimer lang="en">This is an unofficial add-on. Please don't ask for support in LibreELEC or Lakka forums / irc channels.</disclaimer>
 		<platform>linux</platform>
 		<assets>
 			<icon>resources/icon.png</icon>
@@ -322,7 +304,7 @@ read -d '' content <<EOF
 	</extension>
 </addon>
 EOF
-echo "$content" > addon.xml
+echo "$addon" > addon.xml
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tdefault.py "
 read -d '' content <<EOF
@@ -5963,43 +5945,31 @@ cd ..
 zip -y -r "$ARCHIVE_NAME" "$ADDON_NAME" &>>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
-if [ -d "$REPO_DIR/$ADDON_NAME" ] ; then
-	echo -n "Removing old repository folder..."
-	rm -rf "$REPO_DIR/$ADDON_NAME" &>>"$LOG"
-	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
-	echo
-fi
-echo "Moving to repository..."
+echo "Creating repository files..."
 echo -ne "\tzip "
-mv "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/" &>>"$LOG"
+mv -vf "$ARCHIVE_NAME" "$REPO_DIR/$ADDON_NAME/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tsymlink "
-ln -sf "$ARCHIVE_NAME" "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/$ADDON_NAME-LATEST.zip"
+ln -vsf "$ARCHIVE_NAME" "$REPO_DIR/$ADDON_NAME/$ADDON_NAME-LATEST.zip" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\ticon.png "
-echo "$icon" | base64 --decode > "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/icon.png"
+echo "$icon" | base64 --decode > "$REPO_DIR/$ADDON_NAME/resources/icon.png" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tfanart.jpg "
-echo "$fanart" | base64 --decode > "$REPO_DIR/$ZIPS_DIR/$ADDON_NAME/fanart.jpg"
+echo "$fanart" | base64 --decode > "$REPO_DIR/$ADDON_NAME/resources/fanart.jpg" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
-echo -ne "\tfolder "
-mv "$ADDON_NAME" "$REPO_DIR" &>>"$LOG"
+echo -ne "\taddon.xml "
+echo "$addon" > "$REPO_DIR/$ADDON_NAME/addon.xml"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Cleaning up..."
 cd "$SCRIPT_DIR"
 echo -ne "\tproject folder "
-rm -rf "$PROJECT_DIR"
+rm -vrf "$PROJECT_DIR" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tlog file "
 rm -rf "$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
-if [ $UPDATE_ADDONS_XML -eq 1 ] ; then
-	echo -n "Updating repository..."
-	cd "$REPO_DIR" &>>"$LOG"
-	./$ADDON_UPDATE_SCRIPT &>>"$LOG"
-	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
-	echo
-fi
 echo "Finished."
+echo
