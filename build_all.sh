@@ -43,9 +43,17 @@ for p in $BUILDS ; do
 	for a in $p_ARCH ; do
 		if [ -z "$p_DEVICE" ] ; then
 			PROVIDER=$PROVIDER SCRIPT_DIR=$SCRIPT_DIR REPO_DIR=$REPO_DIR VERSION=$VERSION PROJECT=$p ARCH=$a ./$SCRIPT
+			if [ $? -gt 0 ] ; then
+				echo "ERROR: Aborting! Check log!"
+				exit 1
+			fi
 		else
 			for d in $p_DEVICE ; do
 				PROVIDER=$PROVIDER SCRIPT_DIR=$SCRIPT_DIR REPO_DIR=$REPO_DIR VERSION=$VERSION PROJECT=$p ARCH=$a DEVICE=$d ./$SCRIPT
+				if [ $? -gt 0 ] ; then
+					echo "ERROR: Aborting! Check log!"
+					exit 1
+				fi
 			done
 		fi
 	done
