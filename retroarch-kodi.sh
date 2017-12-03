@@ -37,6 +37,9 @@ PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroa
 DISABLED_CORES_RPi="ppsspp uae4arm reicast"
 DISABLED_CORES_Gamegirl="ppsspp uae4arm reicast"
 
+ADDITIONAL_CORES_Generic="beetle-bsnes bsnes beetle-psx bsnes-mercury"
+ADDITIONAL_CORES_Rockchip="beetle-psx"
+
 PACKAGES_ALL=""
 
 for suffix in $PKG_TYPES ; do
@@ -51,6 +54,13 @@ if [ -n "$DISABLED_CORES" ] ; then
 		PACKAGES_LIBRETRO=$(sed "s/$core//g" <<< $PACKAGES_LIBRETRO)
 		PACKAGES_ALL=$(sed "s/$core//g" <<< $PACKAGES_ALL)
 	done
+fi
+
+varname="ADDITIONAL_CORES_$PROJECT"
+ADDITIONAL_CORES="${!varname}"
+if [ -n "$ADDITIONAL_CORES" ] ; then
+	PACKAGES_LIBRETRO="$PACKAGES_LIBRETRO $ADDITIONAL_CORES"
+	PACKAGES_ALL="$PACKAGES_ALL $ADDITIONAL_CORES"
 fi
 
 if [ -n "$DEVICE" ]; then
