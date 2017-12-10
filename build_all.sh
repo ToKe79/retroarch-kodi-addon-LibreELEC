@@ -2,22 +2,20 @@
 
 [ -z "$VERSION" ] && VERSION=$(date +%Y%m%d.%H%M%S)
 [ -z "$PROVIDER" ] && PROVIDER="$USER"
+[ -z "$REPO_VERSION" ] && REPO_VERSION="1.0.0"
 
-BUILDS="S905 S805 S8X2 Generic RPi RPi2 imx6 Allwinner Rockchip WeTek_Core WeTek_Hub WeTek_Play WeTek_Play_2 OdroidC1 Odroid_C2 OdroidXU3 Gamegirl"
+BUILDS="S905 S805 S8X2 Generic RPi RPi2 imx6 WeTek_Core WeTek_Hub WeTek_Play WeTek_Play_2 Odroid_C2 Slice Slice3"
 ARCH_default="arm"
-ARCH_Generic="x86_64 i386"
+ARCH_Generic="x86_64"
 SCRIPT_DIR=$(pwd)
 REPO_DIR="$SCRIPT_DIR/repo"
 DEVICE_default=""
-DEVICE_Rockchip="TinkerBoard ROCK64 MiQi"
 SCRIPT="retroarch-kodi.sh"
 REPO_UPDATE_SCRIPT="addons_xml_generator.py"
-UPDATE_ADDONS_XML=true
 REPO_ID="repository.$PROVIDER"
 REPO_NAME="RetroArch for LibreELEC"
-REPO_VERSION="$VERSION"
 REPO_ARCHIVE="$REPO_ID-$REPO_VERSION.zip"
-REPO_URL="http://www.example.com/repository"
+REPO_URL="https://www.example.com/repo"
 REPO_SUMMARY="RetroArch Add-On for LibreELEC devices"
 REPO_DESC="This add-on is based on the Lakka (www.lakka.tv) sources and provides RetroArch binary, cores, databases and other files required to run the emulation frontend and libretro cores."
 
@@ -62,19 +60,24 @@ done
 echo "Finished building add-ons."
 echo
 echo "Creating repository add-on:"
-echo -ne "\tfolder structure..."
+if [ -d "$REPO_DIR/$REPO_ID" ] ; then
+	echo -ne "\tremoving old folder..."
+	rm -rf "$REPO_DIR/$REPO_ID"
+	[ $? -eq 0 ] && echo "done" || { echo "failed!" ; exit 1 ; }
+fi
+echo -ne "\tcreating folder structure..."
 [ ! -d "$REPO_DIR/$REPO_ID" ] && mkdir -p "$REPO_DIR/$REPO_ID"
 [ ! -d "$REPO_DIR/$REPO_ID/resources" ] && mkdir -p "$REPO_DIR/$REPO_ID/resources"
 echo "done"
-echo -ne "\tupdate script..."
+echo -ne "\tcopying update script..."
 if [ -f "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" ] ; then
 	cp "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" "$REPO_DIR/$REPO_UPDATE_SCRIPT"
-	echo "done"
+	[ $? -eq 0 ] && echo "done" || { echo "failed!" ; exit 1 ; }
 else
-	echo "failed: File '$REPO_UPDATE_SCRIPT' not found - update of addons.xml not possible!"
-	UPDATE_ADDONS_XML=false
+	echo "failed: File '$REPO_UPDATE_SCRIPT' not found."
+	exit 1
 fi
-echo -ne "\taddon.xml..."
+echo -ne "\tgenerating addon.xml..."
 read -d '' content <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="$REPO_ID" name="$REPO_NAME" version="$REPO_VERSION" provider-name="$PROVIDER">
@@ -5632,13 +5635,11 @@ zip -r "$REPO_ARCHIVE" "$REPO_ID" &>/dev/null
 mv -f "$REPO_ARCHIVE" "$REPO_ID/"
 echo "done"
 echo
-if [ $UPDATE_ADDONS_XML ] ; then
-	echo -n "Updating addons.xml..."
-	cd $REPO_DIR
-	$REPO_DIR/$REPO_UPDATE_SCRIPT &>/dev/null
-	rm "$REPO_DIR/$REPO_UPDATE_SCRIPT"
-	echo "done"
-fi
+echo -n "Updating addons.xml..."
+cd $REPO_DIR
+$REPO_DIR/$REPO_UPDATE_SCRIPT &>/dev/null
+rm "$REPO_DIR/$REPO_UPDATE_SCRIPT"
+echo "done"
 echo
 echo "Finished building repository."
 echo
