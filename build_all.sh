@@ -11,7 +11,6 @@ SCRIPT_DIR=$(pwd)
 REPO_DIR="$SCRIPT_DIR/repo"
 DEVICE_default=""
 SCRIPT="retroarch-kodi.sh"
-REPO_UPDATE_SCRIPT="addons_xml_generator.py"
 REPO_ID="repository.$PROVIDER"
 REPO_NAME="RetroArch for LibreELEC"
 REPO_ARCHIVE="$REPO_ID-$REPO_VERSION.zip"
@@ -69,14 +68,6 @@ echo -ne "\tcreating folder structure..."
 [ ! -d "$REPO_DIR/$REPO_ID" ] && mkdir -p "$REPO_DIR/$REPO_ID"
 [ ! -d "$REPO_DIR/$REPO_ID/resources" ] && mkdir -p "$REPO_DIR/$REPO_ID/resources"
 echo "done"
-echo -ne "\tcopying update script..."
-if [ -f "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" ] ; then
-	cp "$SCRIPT_DIR/$REPO_UPDATE_SCRIPT" "$REPO_DIR/$REPO_UPDATE_SCRIPT"
-	[ $? -eq 0 ] && echo "done" || { echo "failed!" ; exit 1 ; }
-else
-	echo "failed: File '$REPO_UPDATE_SCRIPT' not found."
-	exit 1
-fi
 echo -ne "\tgenerating addon.xml..."
 read -d '' content <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -5635,10 +5626,16 @@ zip -r "$REPO_ARCHIVE" "$REPO_ID" &>/dev/null
 mv -f "$REPO_ARCHIVE" "$REPO_ID/"
 echo "done"
 echo
-echo -n "Updating addons.xml..."
-cd $REPO_DIR
-$REPO_DIR/$REPO_UPDATE_SCRIPT &>/dev/null
-rm "$REPO_DIR/$REPO_UPDATE_SCRIPT"
+echo -n "Generating addons.xml..."
+cd "$REPO_DIR"
+OUT=addons.xml
+REMOVE="<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<addons>" >$OUT
+for file in */addon.xml ; do
+	sed -e 's/^/\t/' <<< cat $file | grep -v "$REMOVE" >>$OUT
+done
+echo -e "</addons>" >>$OUT
+echo -n `md5sum $OUT | awk '{ print $1 }'` > $OUT.md5
 echo "done"
 echo
 echo "Finished building repository."
