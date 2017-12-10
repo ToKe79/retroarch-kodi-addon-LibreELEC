@@ -3,19 +3,18 @@ This script creates KODI add-on from Lakka sources for LibreELEC devices. Still 
 
 *Note: I did not have time yet to test the resulting builds, so it might happen, that LibreELEC will miss a library or two to run RetroArch or one of the cores. Please submit an [issue](https://github.com/ToKe79/retroarch-kodi-addon-LibreELEC/issues/new) with the name of the missing library.*
 
-Builds for testing / testing repository can be found [here](https://www.vudiq.sk/repository_kodi/). Currently available builds:
-- Generic PC (64-bit)
-- RPi
-- RPi2
-- Odroid C2
-- imx6 devices
+Builds for testing / testing repository can be found [here](https://www.vudiq.sk/repository_kodi/). Currently available add-ons for these LibreELEC 8.2 builds:
+- Generic PC
+- Raspberry Pi (v1 and Zero)
+- Raspberry Pi (v3 and v2)
+- HardKernel Odroid C2
+- SolidRun Cubox i2/i4 and Hummingboard
 - WeTek Core
 - WeTek Hub
-- WeTek Play
+- WeTek Play / OpenELEC
 - WeTek Play 2
-- S8X2 devices
-- S805 devices
-- S905 / S905X devices
+- Amlogic HTPC (S8X2, S805, S905 / S905X devices)
+- FiveNinja's Slice
 
 # Usage
 Go to the folder, where you keep source code, e.g. if `src` folder in your home folder, then:
