@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z "$VERSION" ] && VERSION=$(date +%Y%m%d.%H%M%S)
+[ -z "$VERSION" ] && VERSION=$(date +%y.%m.%d)
 [ -z "$PROVIDER" ] && PROVIDER="$USER"
 [ -z "$REPO_VERSION" ] && REPO_VERSION="1.0.0"
 

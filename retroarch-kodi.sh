@@ -4,7 +4,7 @@
 [ -z "$PROJECT" ] && PROJECT=S905
 [ -z "$ARCH" ] && ARCH=arm
 [ -z "$DEVICE" ] && DEVICE=
-[ -z "$VERSION" ] && VERSION=$(date +%Y%m%d.%H%M%S)
+[ -z "$VERSION" ] && VERSION=$(date +%y.%m.%d)
 [ -z "$SCRIPT_DIR" ] && SCRIPT_DIR=$(pwd)
 [ -z "$REPO_DIR" ] && REPO_DIR="$SCRIPT_DIR/repo"
 [ -z "$PROVIDER" ] && PROVIDER="$USER"
