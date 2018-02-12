@@ -6,15 +6,15 @@
 [ -z "$DEVICE" ] && DEVICE=
 [ -z "$VERSION" ] && VERSION=$(date +%y.%m.%d)
 [ -z "$SCRIPT_DIR" ] && SCRIPT_DIR=$(pwd)
-[ -z "$REPO_DIR" ] && REPO_DIR="$SCRIPT_DIR/repo"
-[ -z "$PROVIDER" ] && PROVIDER="$USER"
+[ -z "$REPO_DIR" ] && REPO_DIR="${SCRIPT_DIR}/repo"
+[ -z "$PROVIDER" ] && PROVIDER="${USER}"
 
-LAKKA="$HOME/src/Lakka-LibreELEC"
-BUILD_SUBDIR="build.$DISTRO-${DEVICE:-$PROJECT}.$ARCH"
+LAKKA="${HOME}/src/Lakka-LibreELEC"
+BUILD_SUBDIR="build.${DISTRO}-${DEVICE:-$PROJECT}.${ARCH}-2.1-devel"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
-PROJECT_DIR="$SCRIPT_DIR/retroarch_work"
-TARGET_DIR="$PROJECT_DIR/`date +%Y-%m-%d_%H%M%S`"
+PROJECT_DIR="${SCRIPT_DIR}/retroarch_work"
+TARGET_DIR="${PROJECT_DIR}/`date +%Y-%m-%d_%H%M%S`"
 GIT_BRANCH="Lakka-V2.1-dev"
 BASE_NAME="$PROVIDER.retroarch"
 
@@ -46,7 +46,7 @@ for suffix in $PKG_TYPES ; do
 	PACKAGES_ALL="$PACKAGES_ALL ${!varname}"
 done
 
-varname="DISABLED_CORES_$PROJECT"
+varname="DISABLED_CORES_${PROJECT}"
 DISABLED_CORES="${!varname}"
 if [ -n "$DISABLED_CORES" ] ; then
 	for core in $DISABLED_CORES ; do
@@ -55,7 +55,7 @@ if [ -n "$DISABLED_CORES" ] ; then
 	done
 fi
 
-varname="ADDITIONAL_CORES_$PROJECT"
+varname="ADDITIONAL_CORES_${PROJECT}"
 ADDITIONAL_CORES="${!varname}"
 if [ -n "$ADDITIONAL_CORES" ] ; then
 	PACKAGES_LIBRETRO="$PACKAGES_LIBRETRO $ADDITIONAL_CORES"
@@ -63,45 +63,45 @@ if [ -n "$ADDITIONAL_CORES" ] ; then
 fi
 
 if [ -n "$DEVICE" ]; then
-	ADDON_NAME=$BASE_NAME"."$DEVICE"_"$ARCH
-	RA_NAME_SUFFIX=$DEVICE.$ARCH
+	ADDON_NAME=${BASE_NAME}.${DEVICE}_${ARCH}
+	RA_NAME_SUFFIX=${DEVICE}.${ARCH}
 else
-	ADDON_NAME=$BASE_NAME"."$PROJECT"_"$ARCH
-	RA_NAME_SUFFIX=$PROJECT.$ARCH
+	ADDON_NAME=${BASE_NAME}.${PROJECT}_${ARCH}
+	RA_NAME_SUFFIX=${PROJECT}.${ARCH}
 fi
 
 ADDON_NAME=${ADDON_NAME,,}
-ADDON_DIR="$PROJECT_DIR/$ADDON_NAME"
-ARCHIVE_NAME="$ADDON_NAME-$VERSION.zip"
-LOG="$SCRIPT_DIR/retroarch-kodi_`date +%Y%m%d_%H%M%S`.log"
+ADDON_DIR="${PROJECT_DIR}/${ADDON_NAME}"
+ARCHIVE_NAME="${ADDON_NAME}-${VERSION}.zip"
+LOG="${SCRIPT_DIR}/retroarch-kodi_`date +%Y%m%d_%H%M%S`.log"
 
 read -d '' message <<EOF
 Building RetroArch KODI add-on for LibreELEC:
 
-DISTRO=$DISTRO
-PROJECT=$PROJECT
-DEVICE=$DEVICE
-ARCH=$ARCH
-VERSION=$VERSION
+DISTRO=${DISTRO}
+PROJECT=${PROJECT}
+DEVICE=${DEVICE}
+ARCH=${ARCH}
+VERSION=${VERSION}
 
-Working in: $SCRIPT_DIR
-Temporary project folder: $TARGET_DIR
+Working in: ${SCRIPT_DIR}
+Temporary project folder: ${TARGET_DIR}
 
-Target zip: $REPO_DIR/$ADDON_NAME/$ARCHIVE_NAME
+Target zip: ${REPO_DIR}/${ADDON_NAME}/${ARCHIVE_NAME}
 EOF
 
 echo "$message"
 echo
 
 # Checks folders
-for folder in $REPO_DIR $REPO_DIR/$ADDON_NAME $REPO_DIR/$ADDON_NAME/resources ; do
+for folder in ${REPO_DIR} ${REPO_DIR}/${ADDON_NAME} ${REPO_DIR}/${ADDON_NAME}/resources ; do
 	[ ! -d "$folder" ] && { mkdir -p "$folder" && echo "Created folder '$folder'" || { echo "Could not create folder '$folder'!" ; exit 1 ; } ; } || echo "Folder '$folder' exists."
 done
 echo
 
 if [ -d "$LAKKA" ] ; then
 	cd "$LAKKA"
-	git checkout $GIT_BRANCH &>>"$LOG"
+	git checkout ${GIT_BRANCH} &>>"$LOG"
 	echo "Building packages:"
 	for package in $PACKAGES_ALL ; do
 		echo -ne "\t$package "
@@ -133,21 +133,21 @@ if [ -d "$LAKKA" ] ; then
 	echo
 	echo "Copying packages:"
 	for suffix in $PKG_TYPES ; do
-		varname="PKG_SUBDIR_$suffix"
-		path="$PACKAGES_SUBDIR/${!varname}"
-		varname="PACKAGES_$suffix"
+		varname="PKG_SUBDIR_${suffix}"
+		path="${PACKAGES_SUBDIR}/${!varname}"
+		varname="PACKAGES_${suffix}"
 		for package in ${!varname} ; do
 			echo -ne "\t$package "
-			SRC="$path/$package/package.mk"
+			SRC="${path}/${package}/package.mk"
 			if [ -f "$SRC" ] ; then
 				PKG_VERSION=`cat $SRC | sed -En "s/PKG_VERSION=\"(.*)\"/\1/p"`
 			else
 				echo "(skipped - no package.mk)"
 				continue
 			fi
-			PKG_FOLDER="$BUILD_SUBDIR/$package-$PKG_VERSION/.install_pkg"
+			PKG_FOLDER="${BUILD_SUBDIR}/${package}-${PKG_VERSION}/.install_pkg"
 			if [ -d "$PKG_FOLDER" ] ; then
-				cp -Rf "$PKG_FOLDER/"* "$TARGET_DIR/" &>>"$LOG"
+				cp -Rf "${PKG_FOLDER}/"* "${TARGET_DIR}/" &>>"$LOG"
 				[ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 			else
 				echo "(skipped - not found)"
@@ -162,15 +162,15 @@ else
 fi
 if [ -d "$ADDON_DIR" ] ; then
 	echo -n "Removing previous addon..."
-	rm -rf "$ADDON_DIR" &>>"$LOG"
-	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error removing folder '$ADDON_DIR'!" ; exit 1 ; }
+	rm -rf "${ADDON_DIR}" &>>"$LOG"
+	[ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error removing folder '${ADDON_DIR}'!" ; exit 1 ; }
 	echo
 fi
 echo -n "Creating addon folder..."
-mkdir -p "$ADDON_DIR" &>>"$LOG"
-[ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error creating folder '$ADDON_DIR'!" ; exit 1 ; }
+mkdir -p "${ADDON_DIR}" &>>"$LOG"
+[ $? -eq 0 ] && echo "done." || { echo "failed!" ; echo "Error creating folder '${ADDON_DIR}'!" ; exit 1 ; }
 echo
-cd "$ADDON_DIR"
+cd "${ADDON_DIR}"
 echo "Creating folder structure..."
 for f in config resources ; do
 	echo -ne "\t$f "
@@ -180,34 +180,34 @@ done
 echo
 echo "Moving files to addon..."
 echo -ne "\tretroarch.cfg "
-mv -v "$TARGET_DIR/etc/retroarch.cfg" "$ADDON_DIR/config/" &>>"$LOG"
+mv -v "${TARGET_DIR}/etc/retroarch.cfg" "${ADDON_DIR}/config/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tjoypads "
-mv -v "$TARGET_DIR/etc/retroarch-joypad-autoconfig" "$ADDON_DIR/resources/joypads" &>>"$LOG"
+mv -v "${TARGET_DIR}/etc/retroarch-joypad-autoconfig" "${ADDON_DIR}/resources/joypads" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tbinaries "
-mv -v "$TARGET_DIR/usr/bin" "$ADDON_DIR/" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/bin" "${ADDON_DIR}/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tlibraries and cores "
-mv -v "$TARGET_DIR/usr/lib" "$ADDON_DIR/" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/lib" "${ADDON_DIR}/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taudio filters "
-mv -v "$TARGET_DIR/usr/share/audio_filters" "$ADDON_DIR/resources/" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/share/audio_filters" "${ADDON_DIR}/resources/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tvideo filters "
-mv -v "$TARGET_DIR/usr/share/video_filters" "$ADDON_DIR/resources/" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/share/video_filters" "${ADDON_DIR}/resources/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tshaders "
-mv -v "$TARGET_DIR/usr/share/common-shaders" "$ADDON_DIR/resources/shaders" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/share/common-shaders" "${ADDON_DIR}/resources/shaders" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tdatabases "
-mv -v "$TARGET_DIR/usr/share/libretro-database" "$ADDON_DIR/resources/database" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/share/libretro-database" "${ADDON_DIR}/resources/database" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tassets "
-mv -v "$TARGET_DIR/usr/share/retroarch-assets" "$ADDON_DIR/resources/assets" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/share/retroarch-assets" "${ADDON_DIR}/resources/assets" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\toverlays "
-mv -v "$TARGET_DIR/usr/share/retroarch-overlays" "$ADDON_DIR/resources/overlays" &>>"$LOG"
+mv -v "${TARGET_DIR}/usr/share/retroarch-overlays" "${ADDON_DIR}/resources/overlays" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Creating files..."
@@ -217,7 +217,7 @@ read -d '' content <<EOF
 
 . /etc/profile
 
-oe_setup_addon $ADDON_NAME
+oe_setup_addon ${ADDON_NAME}
 
 systemd-run \$ADDON_DIR/bin/retroarch.start
 EOF
@@ -230,7 +230,7 @@ read -d '' content <<EOF
 
 . /etc/profile
 
-oe_setup_addon $ADDON_NAME
+oe_setup_addon ${ADDON_NAME}
 
 PATH="\$ADDON_DIR/bin:\$PATH"
 LD_LIBRARY_PATH="\$ADDON_DIR/lib:\$LD_LIBRARY_PATH"
@@ -293,7 +293,7 @@ chmod +x bin/retroarch.start
 echo -ne "\taddon.xml "
 read -d '' addon <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="$ADDON_NAME" name="RetroArch ($RA_NAME_SUFFIX)" version="$VERSION" provider-name="$PROVIDER">
+<addon id="${ADDON_NAME}" name="RetroArch (${RA_NAME_SUFFIX})" version="${VERSION}" provider-name="${PROVIDER}">
 	<requires>
 		<import addon="os.libreelec.tv" version="8.2"/>
 		<import addon="xbmc.python" version="2.1.0"/>
@@ -321,7 +321,7 @@ import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import os
 import util
 
-ADDON_ID = '$ADDON_NAME'
+ADDON_ID = '${ADDON_NAME}'
 
 addon = xbmcaddon.Addon(id=ADDON_ID)
 addon_dir = xbmc.translatePath( addon.getAddonInfo('path') )
@@ -338,7 +338,7 @@ echo -ne "\tutil.py "
 read -d '' content <<EOF
 import os, xbmc, xbmcaddon
 
-ADDON_ID = '$ADDON_NAME'
+ADDON_ID = '${ADDON_NAME}'
 BIN_FOLDER="bin"
 RETROARCH_EXEC="retroarch.sh"
 
@@ -5904,77 +5904,77 @@ echo
 echo "Making modifications to retroarch.cfg..."
 CFG="config/retroarch.cfg"
 RA_CFG_DIR="\/storage\/\.config\/retroarch"
-RA_CORES_DIR="\/storage\/\.kodi\/addons\/$ADDON_NAME\/lib\/libretro"
-RA_RES_DIR="\/storage\/\.kodi\/addons\/$ADDON_NAME\/resources"
+RA_CORES_DIR="\/storage\/\.kodi\/addons\/${ADDON_NAME}\/lib\/libretro"
+RA_RES_DIR="\/storage\/\.kodi\/addons\/${ADDON_NAME}\/resources"
 echo -ne "\tsavefiles "
-sed -i "s/\/storage\/savefiles/$RA_CFG_DIR\/savefiles/g" $CFG
+sed -i "s/\/storage\/savefiles/${RA_CFG_DIR}\/savefiles/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tsavestates "
-sed -i "s/\/storage\/savestates/$RA_CFG_DIR\/savestates/g" $CFG
+sed -i "s/\/storage\/savestates/${RA_CFG_DIR}\/savestates/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tremappings "
-sed -i "s/\/storage\/remappings/$RA_CFG_DIR\/remappings/g" $CFG
+sed -i "s/\/storage\/remappings/${RA_CFG_DIR}\/remappings/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tplaylists "
-sed -i "s/\/storage\/playlists/$RA_CFG_DIR\/playlists/g" $CFG
+sed -i "s/\/storage\/playlists/${RA_CFG_DIR}\/playlists/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tcores "
-sed -i "s/\/tmp\/cores/$RA_CORES_DIR/g" $CFG
+sed -i "s/\/tmp\/cores/${RA_CORES_DIR}/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tsystem "
-sed -i "s/\/storage\/system/$RA_CFG_DIR\/system/g" $CFG
+sed -i "s/\/storage\/system/${RA_CFG_DIR}\/system/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tassets "
-sed -i "s/\/tmp\/assets/$RA_RES_DIR\/assets/g" $CFG
+sed -i "s/\/tmp\/assets/${RA_RES_DIR}\/assets/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tthumbnails "
-sed -i "s/\/storage\/thumbnails/$RA_CFG_DIR\/thumbnails/g" $CFG
+sed -i "s/\/storage\/thumbnails/${RA_CFG_DIR}\/thumbnails/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tshaders "
-sed -i "s/\/tmp\/shaders/$RA_RES_DIR\/shaders/g" $CFG
+sed -i "s/\/tmp\/shaders/${RA_RES_DIR}\/shaders/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tvideo_filters "
-sed -i "s/\/usr\/share\/video_filters/$RA_RES_DIR\/video_filters/g" $CFG
+sed -i "s/\/usr\/share\/video_filters/${RA_RES_DIR}\/video_filters/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taudio_filters "
-sed -i "s/\/usr\/share\/audio_filters/$RA_RES_DIR\/audio_filters/g" $CFG
+sed -i "s/\/usr\/share\/audio_filters/${RA_RES_DIR}\/audio_filters/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tretroarch-assets "
-sed -i "s/\/usr\/share\/retroarch-assets/$RA_RES_DIR\/assets/g" $CFG
+sed -i "s/\/usr\/share\/retroarch-assets/${RA_RES_DIR}\/assets/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tjoypads "
-sed -i "s/\/tmp\/joypads/$RA_RES_DIR\/joypads/g" $CFG
+sed -i "s/\/tmp\/joypads/${RA_RES_DIR}\/joypads/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tdatabase "
-sed -i "s/\/tmp\/database/$RA_RES_DIR\/database/g" $CFG
+sed -i "s/\/tmp\/database/${RA_RES_DIR}\/database/g" $CFG
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo -n "Creating archive..."
 cd ..
-zip -y -r "$ARCHIVE_NAME" "$ADDON_NAME" &>>"$LOG"
+zip -y -r "${ARCHIVE_NAME}" "${ADDON_NAME}" &>>"$LOG"
 [ $? -eq 0 ] && echo "done." || { echo "failed!" ; exit 1 ; }
 echo
 echo "Creating repository files..."
 echo -ne "\tzip "
-mv -vf "$ARCHIVE_NAME" "$REPO_DIR/$ADDON_NAME/" &>>"$LOG"
+mv -vf "${ARCHIVE_NAME}" "${REPO_DIR}/${ADDON_NAME}/" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tsymlink "
-ln -vsf "$ARCHIVE_NAME" "$REPO_DIR/$ADDON_NAME/$ADDON_NAME-LATEST.zip" &>>"$LOG"
+ln -vsf "${ARCHIVE_NAME}" "${REPO_DIR}/${ADDON_NAME}/${ADDON_NAME}-LATEST.zip" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\ticon.png "
-echo "$icon" | base64 --decode > "$REPO_DIR/$ADDON_NAME/resources/icon.png" &>>"$LOG"
+echo "$icon" | base64 --decode > "${REPO_DIR}/${ADDON_NAME}/resources/icon.png" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tfanart.jpg "
-echo "$fanart" | base64 --decode > "$REPO_DIR/$ADDON_NAME/resources/fanart.jpg" &>>"$LOG"
+echo "$fanart" | base64 --decode > "${REPO_DIR}/${ADDON_NAME}/resources/fanart.jpg" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\taddon.xml "
-echo "$addon" > "$REPO_DIR/$ADDON_NAME/addon.xml"
+echo "$addon" > "${REPO_DIR}/${ADDON_NAME}/addon.xml"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo
 echo "Cleaning up..."
-cd "$SCRIPT_DIR"
+cd "${SCRIPT_DIR}"
 echo -ne "\tproject folder "
-rm -vrf "$PROJECT_DIR" &>>"$LOG"
+rm -vrf "${PROJECT_DIR}" &>>"$LOG"
 [ $? -eq 0 ] && echo "(ok)" || { echo "(failed)" ; exit 1 ; }
 echo -ne "\tlog file "
 rm -rf "$LOG"
