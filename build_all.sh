@@ -4,7 +4,7 @@
 [ -z "$PROVIDER" ] && PROVIDER="$USER"
 [ -z "$REPO_VERSION" ] && REPO_VERSION="1.0.0"
 
-BUILDS="S905 S805 S8X2 Generic RPi RPi2 imx6 WeTek_Core WeTek_Hub WeTek_Play WeTek_Play_2 Odroid_C2 Slice Slice3"
+BUILDS="S905 S912 S805 S8X2 Generic RPi RPi2 imx6 WeTek_Core WeTek_Hub WeTek_Play WeTek_Play_2 Odroid_C2 Slice Slice3"
 ARCH_default="arm"
 ARCH_Generic="x86_64"
 SCRIPT_DIR=$(pwd)
