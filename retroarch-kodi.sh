@@ -32,7 +32,12 @@ PACKAGES_TOOLS="joyutils"
 PACKAGES_NETWORK="sixpair"
 PACKAGES_WAYLAND="libxkbcommon"
 PACKAGES_SYSUTILS="empty"
-PACKAGES_LIBRETRO="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders 2048 4do 81 atari800 beetle-bsnes beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-psx beetle-saturn beetle-supergrafx beetle-vb beetle-wswan bluemsx bsnes bsnes-mercury cap32 chailove citra crocods desmume dinothawr dolphin dosbox easyrpg fbalpha fceumm fuse-libretro gambatte gearboy genesis-plus-gx gpsp gw-libretro handy hatari lutro mame2003 mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em openlara parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem puae px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
+
+LIBRETRO_BASE="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders"
+
+LIBRETRO_CORES="2048 4do 81 atari800 beetle-bsnes beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-psx beetle-saturn beetle-supergrafx beetle-vb beetle-wswan bluemsx bsnes bsnes-mercury cannonball cap32 chailove citra crocods desmume dinothawr dolphin dosbox easyrpg fbalpha fceumm freeintv fuse-libretro gambatte genesis-plus-gx gearboy gme gpsp gw-libretro handy hatari higan-sfc higan-sfc-balanced lutro mame2003 mame2003-plus mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em openlara parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem puae px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2005_plus snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
+
+PACKAGES_LIBRETRO="$LIBRETRO_BASE $LIBRETRO_CORES"
 
 DISABLED_CORES_RPi="ppsspp uae4arm reicast"
 DISABLED_CORES_Slice="ppsspp uae4arm reicast"
