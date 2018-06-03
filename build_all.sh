@@ -18,6 +18,11 @@ REPO_URL="https://www.example.com/repo"
 REPO_SUMMARY="RetroArch Add-On for LibreELEC devices"
 REPO_DESC="This add-on is based on the Lakka (www.lakka.tv) sources and provides RetroArch binary, cores, databases and other files required to run the emulation frontend and libretro cores."
 
+# source local overrides
+if [ -f "$SCRIPT_DIR/local.conf" ] ; then
+	source "$SCRIPT_DIR/local.conf"
+fi
+
 echo "Starting RetroArch for LibreELEC repository build script."
 echo
 
