@@ -44,6 +44,11 @@ DISABLED_CORES_Slice="ppsspp uae4arm reicast"
 
 PACKAGES_ALL=""
 
+# source local overrides
+if [ -f "${SCRIPT_DIR}/local.conf" ] ; then
+	source "${SCRIPT_DIR}/local.conf"
+fi
+
 for suffix in $PKG_TYPES ; do
 	varname="PACKAGES_$suffix"
 	PACKAGES_ALL="$PACKAGES_ALL ${!varname}"
