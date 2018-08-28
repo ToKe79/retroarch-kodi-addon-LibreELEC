@@ -10,7 +10,7 @@
 [ -z "$PROVIDER" ] && PROVIDER="${USER}"
 
 LAKKA="${HOME}/src/Lakka-LibreELEC"
-BUILD_SUBDIR="build.${DISTRO}-${DEVICE:-$PROJECT}.${ARCH}-2.1-devel"
+BUILD_SUBDIR="build.${DISTRO}-${DEVICE:-$PROJECT}.${ARCH}-2.2-devel"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
 PROJECT_DIR="${SCRIPT_DIR}/retroarch_work"
