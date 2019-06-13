@@ -8,9 +8,10 @@
 [ -z "$SCRIPT_DIR" ] && SCRIPT_DIR=$(pwd)
 [ -z "$REPO_DIR" ] && REPO_DIR="${SCRIPT_DIR}/repo"
 [ -z "$PROVIDER" ] && PROVIDER="${USER}"
+[ -z "$IV" ] && IV=1
 
 LAKKA="${HOME}/src/Lakka-LibreELEC"
-BUILD_SUBDIR="build.${DISTRO}-${DEVICE:-$PROJECT}.${ARCH}-2.2-devel"
+BUILD_SUBDIR="build.${DISTRO}-${DEVICE:-$PROJECT}.${ARCH}"
 SCRIPT="scripts/build"
 PACKAGES_SUBDIR="packages"
 PROJECT_DIR="${SCRIPT_DIR}/retroarch_work"
@@ -35,7 +36,7 @@ PACKAGES_SYSUTILS="empty"
 
 LIBRETRO_BASE="retroarch retroarch-assets retroarch-joypad-autoconfig retroarch-overlays libretro-database core-info glsl-shaders"
 
-LIBRETRO_CORES="2048 4do 81 atari800 beetle-bsnes beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-psx beetle-saturn beetle-supergrafx beetle-vb beetle-wswan bluemsx bsnes bsnes-mercury cannonball cap32 chailove citra crocods desmume dinothawr dolphin dosbox easyrpg fbalpha fceumm freeintv fuse-libretro gambatte genesis-plus-gx gearboy gme gpsp gw-libretro handy hatari higan-sfc higan-sfc-balanced lutro mame2003 mame2003-plus mame2003-midway melonds meowpc98 mgba mrboom mupen64plus nestopia nxengine o2em openlara parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem puae px68k redream reicast sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2005_plus snes9x2010 stella tgbdual tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
+LIBRETRO_CORES="2048 4do 81 atari800 beetle-bsnes beetle-lynx beetle-ngp beetle-pce beetle-pcfx beetle-psx beetle-saturn beetle-supergrafx beetle-vb beetle-wswan bluemsx bsnes bsnes-mercury cannonball cap32 chailove citra crocods desmume desmume-2015 dinothawr dolphin dosbox dosbox-svn easyrpg fbalpha fceumm freeintv fuse-libretro gambatte genesis-plus-gx gearboy gme gpsp gw-libretro handy hatari higan-sfc higan-sfc-balanced lutro mame2003-plus melonds meowpc98 mesen mgba mrboom mupen64plus nestopia nxengine o2em openlara parallel-n64 pcsx_rearmed picodrive pocketcdg ppsspp prboom prosystem puae px68k reicast reminiscence sameboy scummvm snes9x snes9x2002 snes9x2005 snes9x2005_plus snes9x2010 stella tgbdual theodore tyrquake uae4arm uzem vbam vecx vice virtualjaguar xrick yabause"
 
 PACKAGES_LIBRETRO="$LIBRETRO_BASE $LIBRETRO_CORES"
 
@@ -106,11 +107,7 @@ if [ -d "$LAKKA" ] ; then
 	echo "Building packages:"
 	for package in $PACKAGES_ALL ; do
 		echo -ne "\t$package "
-		if [ -n "$DEVICE" ] ; then
-			DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>>"$LOG"
-		else
-			DISTRO=$DISTRO PROJECT=$PROJECT ARCH=$ARCH ./$SCRIPT $package &>>"$LOG"
-		fi
+		IGNORE_VERSION=$IV DISTRO=$DISTRO PROJECT=$PROJECT DEVICE=$DEVICE ARCH=$ARCH ./$SCRIPT $package &>>"$LOG"
 		if [ $? -eq 0 ] ; then
 			echo "(ok)"
 		else
